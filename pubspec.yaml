@@ -1,0 +1,11 @@
+name: s3p_signature
+description: Dart implementation of Smobilpay S3P HMAC-SHA1 signature generation.
+version: 1.0.0
+environment:
+  sdk: '^3.0.0'
+
+dependencies:
+  crypto: ^3.0.3
+
+dev_dependencies:
+  test: ^1.24.0
