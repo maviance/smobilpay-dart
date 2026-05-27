@@ -1,0 +1,23 @@
+[
+  {
+    "ptn": "PTN-001",
+    "serviceid": "10039",
+    "merchant": "ENEO",
+    "timestamp": "2026-05-27T13:00:00Z",
+    "receiptNumber": "RCPT-1",
+    "veriCode": "V1",
+    "clearingDate": "2026-05-28",
+    "trid": "TRID-1",
+    "priceLocalCur": 500.0,
+    "priceSystemCur": 500.0,
+    "localCur": "XAF",
+    "systemCur": "XAF",
+    "pin": null,
+    "status": "SUCCESS",
+    "payItemId": "PI-1",
+    "payItemDescr": "Test item",
+    "errorCode": 0,
+    "tag": null,
+    "commission": {"earnings": 2.5, "currency": "XAF"}
+  }
+]

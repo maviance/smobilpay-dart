@@ -1,0 +1,14 @@
+{
+  "balance": 12345.67,
+  "currency": "XAF",
+  "key": "PUB_KEY_TEST",
+  "agentId": "AGT-001",
+  "agentName": "Test Agent",
+  "agentAddress": "Yaoundé",
+  "agentPhonenumber": "+237600000000",
+  "companyName": "ACME",
+  "companyAddress": "Yaoundé",
+  "companyPhonenumber": "+237600000001",
+  "limitMax": 1000000.0,
+  "limitRemaining": 987654.32
+}
