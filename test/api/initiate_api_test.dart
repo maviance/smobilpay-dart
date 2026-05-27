@@ -477,4 +477,94 @@ void main() {
     expect(resp.toString(), contains('q-001'));
     expect(resp.toString(), contains('SPAY-DEV-10039-BILL-001'));
   });
+
+  // ---------------------------------------------------------------------------
+  // toJson() coverage
+  // ---------------------------------------------------------------------------
+
+  test('Bill.toJson emits all fields', () async {
+    final c = FakeHttpClient();
+    final api = _newApi(c);
+    c.expect(
+      method: 'GET',
+      url: '/v2/bill',
+      statusCode: 200,
+      body: jsonEncode(loadFixtureList('bill')),
+    );
+    final bills = await api.bills(
+        merchant: 'ENEO', serviceId: 10039, serviceNumber: '203157530');
+    final j = bills.first.toJson();
+    expect(j['serviceid'], 10039);
+    expect(j['payItemId'], isA<String>());
+    expect(j['billType'], isA<String>());
+    expect(j['amountType'], isA<String>());
+    expect(j.containsKey('billDate'), isTrue);
+    expect(j.containsKey('billDueDate'), isTrue);
+    expect(j.containsKey('penaltyAmount'), isTrue);
+    expect(j.containsKey('payOrder'), isTrue);
+  });
+
+  test('Subscription.toJson emits all fields', () async {
+    final c = FakeHttpClient();
+    final api = _newApi(c);
+    c.expect(
+      method: 'GET',
+      url: '/v2/subscription',
+      statusCode: 200,
+      body: jsonEncode(loadFixtureList('subscription')),
+    );
+    final subs = await api.subscriptions(
+        merchant: 'CMSABC', serviceId: 5000, serviceNumber: '0000000101');
+    final j = subs.first.toJson();
+    expect(j['serviceid'], isA<int>());
+    expect(j['payItemId'], isA<String>());
+    expect(j['amountType'], isA<String>());
+    expect(j.containsKey('startDate'), isTrue);
+    expect(j.containsKey('dueDate'), isTrue);
+    expect(j.containsKey('endDate'), isTrue);
+    expect(j.containsKey('customerName'), isTrue);
+  });
+
+  test('QuoteResponse.toJson emits all fields', () async {
+    final c = FakeHttpClient();
+    final api = _newApi(c);
+    c.expect(
+      method: 'POST',
+      url: '/v2/quotestd',
+      statusCode: 200,
+      body: jsonEncode(loadFixtureMap('quote_response')),
+    );
+    final resp = await api.quote(
+        QuoteRequest(amount: 12500, payItemId: 'SPAY-DEV-10039-BILL-001'));
+    final j = resp.toJson();
+    expect(j['quoteId'], '00000000-0000-0000-0000-000000000001');
+    expect(j['payItemId'], 'SPAY-DEV-10039-BILL-001');
+    expect(j['priceLocalCur'], 12500.0);
+    expect(j['expiresAt'], isA<String>());
+    expect(j.containsKey('promotion'), isTrue);
+    expect(j.containsKey('amountLocalCur'), isTrue);
+    expect(j.containsKey('systemCur'), isTrue);
+  });
+
+  test('Bill.fromJson accepts string-typed serviceid via LenientNum', () {
+    final b = Bill.fromJson({
+      'serviceid': '10039',
+      'merchant': 'ENEO',
+      'payItemId': 'PID',
+      'amountType': 'FIXED',
+      'billType': 'REGULAR',
+    });
+    expect(b.serviceId, 10039);
+  });
+
+  test('Subscription.fromJson accepts string-typed serviceid via LenientNum',
+      () {
+    final s = Subscription.fromJson({
+      'serviceid': '5000',
+      'merchant': 'CMSABC',
+      'payItemId': 'PID',
+      'amountType': 'FIXED',
+    });
+    expect(s.serviceId, 5000);
+  });
 }

@@ -672,4 +672,131 @@ void main() {
     );
     expect(p.toString(), contains('SPAY-DEV-30201-PROD-001'));
   });
+
+  // -------------------------------------------------------------------------
+  // toJson() coverage for all DTOs
+  // -------------------------------------------------------------------------
+
+  test('Merchant.toJson emits all fields', () async {
+    final c = FakeHttpClient();
+    final api = _newApi(c);
+    c.expect(
+      method: 'GET',
+      url: '/v2/merchant',
+      statusCode: 200,
+      body: jsonEncode(loadFixtureList('merchants')),
+    );
+    final merchants = await api.merchants();
+    final j = merchants.first.toJson();
+    expect(j['merchant'], 'ENEO');
+    expect(j['name'], isA<String>());
+    expect(j['country'], 'CMR');
+    expect(j['status'], 'Active');
+    expect(j.containsKey('logo'), isTrue);
+    expect(j.containsKey('logoHash'), isTrue);
+    expect(j.containsKey('description'), isTrue);
+  });
+
+  test('Service.toJson emits all fields', () async {
+    final c = FakeHttpClient();
+    final api = _newApi(c);
+    c.expect(
+      method: 'GET',
+      url: '/v2/service',
+      statusCode: 200,
+      body: jsonEncode(loadFixtureList('services')),
+    );
+    final services = await api.services();
+    final j = services.first.toJson();
+    expect(j['serviceid'], 10039);
+    expect(j['merchant'], 'ENEO');
+    expect(j['type'], 'SEARCHABLE_BILL');
+    expect(j['status'], 'Active');
+    expect(j['labelServiceNumber'], isA<List<dynamic>>());
+    expect(j.containsKey('denomination'), isTrue);
+    expect(j.containsKey('validationMask'), isTrue);
+  });
+
+  test('Cashout.toJson emits all fields', () async {
+    final c = FakeHttpClient();
+    final api = _newApi(c);
+    c.expect(
+      method: 'GET',
+      url: '/v2/cashout',
+      statusCode: 200,
+      body: jsonEncode(loadFixtureList('cashout')),
+    );
+    final items = await api.cashouts();
+    final j = items.first.toJson();
+    expect(j['serviceid'], 20053);
+    expect(j['payItemId'], 'SPAY-DEV-20053-MTN-CASHOUT-001');
+    expect(j['amountType'], 'CUSTOM');
+    expect(j.containsKey('amountLocalCur'), isTrue);
+    expect(j.containsKey('optNmb'), isTrue);
+    expect(j.containsKey('optStrg'), isTrue);
+  });
+
+  test('Cashin.toJson emits all fields', () async {
+    final c = FakeHttpClient();
+    final api = _newApi(c);
+    c.expect(
+      method: 'GET',
+      url: '/v2/cashin',
+      statusCode: 200,
+      body: jsonEncode(loadFixtureList('cashin')),
+    );
+    final items = await api.cashins();
+    final j = items.first.toJson();
+    expect(j['serviceid'], 20054);
+    expect(j['payItemId'], isA<String>());
+    expect(j['amountType'], 'CUSTOM');
+    expect(j.containsKey('localCur'), isTrue);
+  });
+
+  test('Topup.toJson emits all fields', () async {
+    final c = FakeHttpClient();
+    final api = _newApi(c);
+    c.expect(
+      method: 'GET',
+      url: '/v2/topup',
+      statusCode: 200,
+      body: jsonEncode(loadFixtureList('topup')),
+    );
+    final items = await api.topups();
+    final j = items.first.toJson();
+    expect(j['serviceid'], 10101);
+    expect(j['payItemId'], isA<String>());
+    expect(j['merchant'], 'CMOMRNG');
+    expect(j.containsKey('amountLocalCur'), isTrue);
+  });
+
+  test('Product.toJson emits all fields', () async {
+    final c = FakeHttpClient();
+    final api = _newApi(c);
+    c.expect(
+      method: 'GET',
+      url: '/v2/product',
+      statusCode: 200,
+      body: jsonEncode(loadFixtureList('product')),
+    );
+    final items = await api.products();
+    final j = items.first.toJson();
+    expect(j['serviceid'], 30201);
+    expect(j['amountType'], 'FIXED');
+    expect(j['amountLocalCur'], 500.0);
+    expect(j.containsKey('merchant'), isTrue);
+  });
+
+  test('Cashout.fromJson accepts string-typed serviceid via LenientNum',
+      () async {
+    final co = Cashout.fromJson({
+      'serviceid': '20053',
+      'merchant': 'CMMTNMOMO',
+      'payItemId': 'PID',
+      'amountType': 'CUSTOM',
+    });
+    expect(co.serviceId, 20053);
+    final j = co.toJson();
+    expect(j['serviceid'], 20053);
+  });
 }

@@ -85,4 +85,11 @@ class CustomerAccount {
 
   /// The destination MSISDN/account echoed back; may be null per spec.
   final String? destination;
+
+  /// Encodes this [CustomerAccount] as a JSON map.
+  Map<String, dynamic> toJson() => {
+        'destination': destination,
+        'name': name,
+        'status': status.wireName,
+      };
 }

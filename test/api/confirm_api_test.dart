@@ -260,4 +260,49 @@ void main() {
     expect(resp.toString(), contains('PTN-DART-SMOKE-001'));
     expect(resp.toString(), contains('PaymentStatusType'));
   });
+
+  // ---------------------------------------------------------------------------
+  // CollectionResponse.toJson() coverage
+  // ---------------------------------------------------------------------------
+
+  test('CollectionResponse.toJson emits all fields', () async {
+    final c = FakeHttpClient();
+    final api = _newApi(c);
+    c.expect(
+      method: 'POST',
+      url: '/v2/collectstd',
+      statusCode: 200,
+      body: jsonEncode(loadFixtureMap('collection_response')),
+    );
+    final resp = await api.collect(CollectionRequest(
+      quoteId: '00000000-0000-0000-0000-000000000001',
+      customerPhonenumber: '+237612345678',
+      customerEmailaddress: 'test@example.com',
+    ));
+    final j = resp.toJson();
+    expect(j['ptn'], 'PTN-DART-SMOKE-001');
+    expect(j['status'], 'SUCCESS');
+    expect(j['priceLocalCur'], 1000.0);
+    expect(j['agentBalance'], 49500.0);
+    expect(j['timestamp'], isA<String>());
+    expect(j.containsKey('pin'), isTrue);
+    expect(j.containsKey('trid'), isTrue);
+    expect(j.containsKey('veriCode'), isTrue);
+    expect(j.containsKey('tag'), isTrue);
+  });
+
+  test('CollectionResponse.fromJson accepts string-typed numerics', () {
+    final resp = CollectionResponse.fromJson({
+      'ptn': 'PTN-X',
+      'status': 'SUCCESS',
+      'agentBalance': '49500',
+      'priceLocalCur': '1000',
+      'priceSystemCur': '1000',
+    });
+    expect(resp.agentBalance, 49500.0);
+    expect(resp.priceLocalCur, 1000.0);
+    expect(resp.priceSystemCur, 1000.0);
+    final j = resp.toJson();
+    expect(j['agentBalance'], 49500.0);
+  });
 }

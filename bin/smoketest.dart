@@ -677,10 +677,7 @@ class _Runner {
     await _run('Ping (auth probe)', () async {
       final pong = await client.verify.ping();
       _require(pong.version.isNotEmpty, 'empty response');
-      _detail('server time:    ${pong.time}');
-      _detail('server version: ${pong.version}');
-      _detail('nonce echo:     ${pong.nonce}');
-      _detail('public key:     ${pong.key}');
+      _dumpFields(pong.toJson(), _detail);
     });
   }
 
@@ -696,17 +693,14 @@ class _Runner {
       _detail('first  bearer prefix: ${first.substring(0, firstLen)}...');
       _detail('forced bearer prefix: ${forced.substring(0, forcedLen)}...');
       _detail('identical: ${first == forced}');
+      _dumpFields(pong.toJson(), _detail);
     });
   }
 
   Future<void> _scenarioAccount(SmobilpayClient client) async {
     await _run('Account profile', () async {
       final account = await client.verify.account();
-      _detail('agent:           ${account.agentName} (id=${account.agentId})');
-      _detail('company:         ${account.companyName}');
-      _detail('balance:         ${account.balance} ${account.currency}');
-      _detail('daily limit max: ${account.limitMax}');
-      _detail('limit remaining: ${account.limitRemaining}');
+      _dumpFields(account.toJson(), _detail);
     });
   }
 
@@ -722,6 +716,10 @@ class _Runner {
       }
       if (merchants.length > sample) {
         _detail('  ...and ${merchants.length - sample} more');
+      }
+      if (merchants.isNotEmpty) {
+        _detail('first merchant fields:');
+        _dumpFields(merchants.first.toJson(), _detail);
       }
     });
   }
@@ -745,6 +743,10 @@ class _Runner {
       _listServicesOfType(
           services, ServiceType.subscription, 'SUBSCRIPTION services');
       _listVerifiableServices(services);
+      if (services.isNotEmpty) {
+        _detail('first service fields:');
+        _dumpFields(services.first.toJson(), _detail);
+      }
     });
   }
 
@@ -765,6 +767,7 @@ class _Runner {
       final item = items.first;
       _detail('picked: ${item.payItemId} (${item.name},'
           ' ${item.amountType}, local=${item.amountLocalCur} ${item.localCur})');
+      _dumpFields(item.toJson(), _detail);
       final quote = await _quoteOnly(client, item, cashout.amount, _detail);
       if (willCollect) {
         await _collectAndReport(client, quote, cashout, _detail);
@@ -794,6 +797,7 @@ class _Runner {
       _detail('picked: ${b.payItemId} (${b.billType},'
           ' amount=${b.amountLocalCur} ${b.localCur},'
           ' due=${b.billDueDate})');
+      _dumpFields(b.toJson(), _detail);
       final amount = (b.amountLocalCur ?? 0.0).toInt();
       final quote = await _quoteOnly(client, b, amount, _detail);
       if (willCollect) {
@@ -818,6 +822,7 @@ class _Runner {
       final item = items.first;
       _detail('picked: ${item.payItemId} (${item.name},'
           ' ${item.amountType}, local=${item.amountLocalCur} ${item.localCur})');
+      _dumpFields(item.toJson(), _detail);
       final quote = await _quoteOnly(client, item, topup.amount, _detail);
       if (willCollect) {
         await _collectAndReport(client, quote, topup, _detail);
@@ -844,6 +849,9 @@ class _Runner {
           _skip('/v2/voucher rejects serviceId=${v.serviceId}'
               ' (respCode 41004) even though the catalog labels it VOUCHER');
         }
+        if (e.error == null && e.rawBody != null && e.rawBody!.isNotEmpty) {
+          _detail('rawBody:  ${e.rawBody}');
+        }
         rethrow;
       }
       if (items.isEmpty) {
@@ -852,6 +860,7 @@ class _Runner {
       final item = items.first;
       _detail('picked: ${item.payItemId} (${item.name},'
           ' ${item.amountType}, local=${item.amountLocalCur} ${item.localCur})');
+      _dumpFields(item.toJson(), _detail);
       final amount = _resolveAmount(item, v.amount);
       final quote = await _quoteOnly(client, item, amount, _detail);
       if (willCollect) {
@@ -877,6 +886,7 @@ class _Runner {
       final item = items.first;
       _detail('picked: ${item.payItemId} (${item.name},'
           ' ${item.amountType}, local=${item.amountLocalCur} ${item.localCur})');
+      _dumpFields(item.toJson(), _detail);
       final amount = _resolveAmount(item, product.amount);
       final quote = await _quoteOnly(client, item, amount, _detail);
       if (willCollect) {
@@ -916,6 +926,7 @@ class _Runner {
           ' customer=${sub.customerName},'
           ' amount=${sub.amountLocalCur} ${sub.localCur},'
           ' due=${sub.dueDate})');
+      _dumpFields(sub.toJson(), _detail);
       final amount = _resolveAmount(sub, subscription.amount);
       final quote = await _quoteOnly(client, sub, amount, _detail);
       if (willCollect) {
@@ -941,6 +952,7 @@ class _Runner {
       final item = items.first;
       _detail('picked: ${item.payItemId} (${item.name},'
           ' ${item.amountType}, local=${item.amountLocalCur} ${item.localCur})');
+      _dumpFields(item.toJson(), _detail);
       final quote = await _quoteOnly(client, item, cashin.amount, _detail);
       if (willCollect) {
         await _collectAndReport(client, quote, cashin, _detail);
@@ -967,6 +979,9 @@ class _Runner {
           _skip('service ${c!.merchant}/${c.serviceId}'
               ' does not support pre-payment verification (respCode 40408)');
         }
+        if (e.error == null && e.rawBody != null && e.rawBody!.isNotEmpty) {
+          _detail('rawBody:  ${e.rawBody}');
+        }
         rethrow;
       }
     });
@@ -981,14 +996,15 @@ class _Runner {
           destination: c!.destination,
           serviceId: c.serviceId,
         );
-        _detail('destination: ${account.destination}');
-        _detail('status:      ${account.status}');
-        _detail('name:        ${account.name}');
+        _dumpFields(account.toJson(), _detail);
       } on SmobilpayApiException catch (e) {
         if (e.httpStatus == 401) {
           _skip('GET /v2/validate is a restricted endpoint and is not enabled'
               ' for this partner (HTTP 401). Compliance review is required —'
               ' contact your Maviance integration manager.');
+        }
+        if (e.error == null && e.rawBody != null && e.rawBody!.isNotEmpty) {
+          _detail('rawBody:  ${e.rawBody}');
         }
         rethrow;
       }
@@ -1014,6 +1030,10 @@ class _Runner {
         _detail('  - ${s.ptn} : ${s.status},'
             ' ${s.priceLocalCur} ${s.localCur},'
             ' trid=${s.trid}');
+      }
+      if (rows.isNotEmpty) {
+        _detail('first row fields:');
+        _dumpFields(rows.first.toJson(), _detail);
       }
     });
   }
@@ -1044,6 +1064,8 @@ class _Runner {
         _detail('devMsg:   ${err.devMsg}');
         if (err.usrMsg != null) _detail('usrMsg:   ${err.usrMsg}');
         if (err.link != null) _detail('link:     ${err.link}');
+      } else if (e.rawBody != null && e.rawBody!.isNotEmpty) {
+        _detail('rawBody:  ${e.rawBody}');
       }
     } catch (e) {
       failed++;
@@ -1060,6 +1082,9 @@ class _Runner {
   // --- Helpers --------------------------------------------------------------
 
   void _detail(String text) => _line('     $text');
+
+  void _dumpFields(Map<String, dynamic> map, void Function(String) detail) =>
+      __dumpFields(map, detail);
 
   void _listServicesOfType(
       List<Service> services, ServiceType type, String label) {
@@ -1088,7 +1113,7 @@ class _Runner {
 // Shared scenario helpers
 // ---------------------------------------------------------------------------
 
-/// Issues a quote and prints the standard quote fields.
+/// Issues a quote and prints all quote fields.
 Future<QuoteResponse> _quoteOnly(
   SmobilpayClient client,
   PaymentItem item,
@@ -1098,11 +1123,7 @@ Future<QuoteResponse> _quoteOnly(
   final quote = await client.initiate.quote(
     QuoteRequest(amount: amount, payItemId: item.payItemId),
   );
-  detail('quoteId:        ${quote.quoteId}');
-  detail('expiresAt:      ${quote.expiresAt}');
-  detail('price (local):  ${quote.priceLocalCur} ${quote.localCur}');
-  detail('price (system): ${quote.priceSystemCur} ${quote.systemCur}');
-  detail('promotion:      ${quote.promotion}');
+  __dumpFields(quote.toJson(), detail);
   return quote;
 }
 
@@ -1166,15 +1187,7 @@ Future<void> _collectAndReport(
       '  customerPhonenumber=${c.customerPhonenumber}'
       '${c.serviceNumber != null ? "  serviceNumber=${c.serviceNumber}" : ""}');
   final resp = await client.confirm.collect(request);
-  detail('status:         ${resp.status}');
-  detail('ptn:            ${resp.ptn}');
-  detail('receiptNumber:  ${resp.receiptNumber}');
-  detail('veriCode:       ${resp.veriCode}');
-  detail('price (local):  ${resp.priceLocalCur} ${resp.localCur}');
-  detail('price (system): ${resp.priceSystemCur} ${resp.systemCur}');
-  detail('agentBalance:   ${resp.agentBalance}');
-  detail('trid:           ${resp.trid}');
-  detail('timestamp:      ${resp.timestamp}');
+  __dumpFields(resp.toJson(), detail);
 
   // One-shot verifyTransaction poll, matching the Node.js client.
   await Future<void>.delayed(const Duration(seconds: 1));
@@ -1210,6 +1223,22 @@ class _ConfigError implements Exception {
 
 void _require(bool ok, String message) {
   if (!ok) throw StateError(message);
+}
+
+/// Prints every field of [map] as `key: value` detail lines, in sorted key
+/// order. Used by every scenario to dump the complete response.
+void __dumpFields(Map<String, dynamic> map, void Function(String) detail) {
+  final keys = map.keys.toList()..sort();
+  for (final k in keys) {
+    final v = map[k];
+    final pretty = switch (v) {
+      null => '<null>',
+      List() => '[${v.length} items]',
+      Map() => v.toString(),
+      _ => v.toString(),
+    };
+    detail('$k: $pretty');
+  }
 }
 
 void _skip(String reason) => throw _SkipException(reason);

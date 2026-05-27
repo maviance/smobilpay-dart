@@ -157,4 +157,37 @@ void main() {
     expect(account.name, isNull);
     expect(account.destination, isNull);
   });
+
+  // ---------------------------------------------------------------------------
+  // CustomerAccount.toJson()
+  // ---------------------------------------------------------------------------
+
+  test('CustomerAccount.toJson emits all fields', () async {
+    final c = FakeHttpClient();
+    final api = _newApi(c);
+    c.expect(
+      method: 'GET',
+      url: '/v2/validate',
+      statusCode: 200,
+      body: jsonEncode(loadFixtureMap('customer_account')),
+    );
+    final account = await api.validateAccount(
+      destination: '677389120',
+      serviceId: 7,
+    );
+    final j = account.toJson();
+    expect(j['status'], 'VERIFIED');
+    expect(j['name'], 'JOHN DOE');
+    expect(j['destination'], '677389120');
+  });
+
+  test('CustomerAccount.toJson with null fields', () {
+    final account = CustomerAccount.fromJson({'status': 'VERIFIED'});
+    final j = account.toJson();
+    expect(j['status'], 'VERIFIED');
+    expect(j.containsKey('name'), isTrue);
+    expect(j.containsKey('destination'), isTrue);
+    expect(j['name'], isNull);
+    expect(j['destination'], isNull);
+  });
 }
