@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sdk: [stable, beta]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: ${{ matrix.sdk }}
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze
+        run: dart analyze --fatal-infos --fatal-warnings
+
+      - name: Test with coverage
+        run: |
+          dart pub global activate coverage
+          dart test --coverage=coverage/
+          dart pub global run coverage:format_coverage \
+              --lcov --in=coverage/ --out=coverage/lcov.info \
+              --packages=.dart_tool/package_config.json --report-on=lib
+
+      - name: Enforce coverage gate
+        run: dart run tool/check_coverage.dart coverage/lcov.info 80
+
+      - name: pub publish dry-run
+        if: matrix.sdk == 'stable'
+        run: dart pub publish --dry-run

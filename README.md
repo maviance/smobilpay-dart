@@ -1,25 +1,39 @@
-# S3P Signature (Dart)
+# smobilpay (Dart)
 
-This Dart package implements HMAC-SHA1 signature generation for authenticating requests to the **Smobilpay S3P API**
+[![pub package](https://img.shields.io/pub/v/smobilpay.svg)](https://pub.dev/packages/smobilpay)
+[![CI](https://github.com/maviance/smobilpay-dart/actions/workflows/ci.yml/badge.svg)](https://github.com/maviance/smobilpay-dart/actions/workflows/ci.yml)
 
----
+Dart client library for the **Smobilpay partner API** (v3.2.0). OAuth 2.0 only.
 
-## ✨ Features
+This is the curated, partner-facing client. It covers every endpoint a partner
+integrator needs to move money in and out, sell value-added services, and
+drive a payment UI from the static catalog.
 
-- ✅ Fully compliant with the [Smobilpay S3P API Authentication Spec](https://apidocs.smobilpay.com/s3papi/Authentication.1578338286.html)
-- ✅ Supports `POST` and `GET` request types
-- ✅ Automatically handles query string parsing for `GET` requests
-- ✅ Strips trailing `?` from URLs to prevent canonical string errors
-- ✅ Includes working test cases and example file
+> The full README is generated in Task 24. This placeholder satisfies
+> `dart pub publish --dry-run` until then.
 
----
+## Quickstart
 
-## 📦 Installation
+```dart
+import 'package:smobilpay/smobilpay.dart';
 
-Add this package to your Dart project:
+Future<void> main() async {
+  final client = SmobilpayClient(
+    config: SmobilpayConfig(
+      baseUrl: Uri.parse('https://api.example.invalid'),
+      publicKey: 'YOUR_PUBLIC_KEY',
+      secretKey: 'YOUR_SECRET_KEY',
+    ),
+  );
+  try {
+    final pong = await client.verify.ping();
+    print('server version: ${pong.version}');
+  } finally {
+    client.close();
+  }
+}
+```
 
-```yaml
-dependencies:
-  s3p_signature:
-    git:
-      url: https://github.com/maviance/smobilpay-dart.git
+## License
+
+MIT — see [LICENSE](./LICENSE).
