@@ -1,0 +1,6 @@
+# Internal planning & dev tooling — not part of the published package
+/docs/
+/doc/
+/coverage/
+/tool/
+/smoke-test.json
