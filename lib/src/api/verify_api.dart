@@ -1,5 +1,6 @@
 import '../exception.dart';
 import '../http/lenient_date.dart';
+import '../http/lenient_num.dart';
 import '../http/query_params.dart';
 import '../http/transport.dart';
 import '../model/commission.dart';
@@ -85,23 +86,32 @@ class VerifyApi {
     if (toDate.isBefore(fromDate)) {
       throw const SmobilpayConfigException('to date is before from date');
     }
+    final fromInstant = DateTime.utc(from.year, from.month, from.day);
+    final toInstant = DateTime.utc(to.year, to.month, to.day, 23, 59, 59);
     final json = await _transport.getJson(
       '/v2/historystd',
       QueryParams()
-        ..add('timestamp_from', _formatDate(fromDate))
-        ..add('timestamp_to', _formatDate(toDate)),
+        ..add('timestamp_from', _formatHistoryInstant(fromInstant))
+        ..add('timestamp_to', _formatHistoryInstant(toInstant)),
     ) as List<dynamic>;
     return json
         .map((e) => PaymentStatus.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 
-  /// Formats a [DateTime] as `yyyy-MM-dd`.
-  static String _formatDate(DateTime dt) {
-    final y = dt.year.toString().padLeft(4, '0');
-    final m = dt.month.toString().padLeft(2, '0');
-    final d = dt.day.toString().padLeft(2, '0');
-    return '$y-$m-$d';
+  /// Formats a [DateTime] as `yyyy-MM-ddTHH:mm:ssZ` (no fractional seconds).
+  ///
+  /// Matches Java's `DateTimeFormatter.ISO_OFFSET_DATE_TIME` output for
+  /// UTC datetimes.
+  static String _formatHistoryInstant(DateTime dt) {
+    final u = dt.toUtc();
+    final y = u.year.toString().padLeft(4, '0');
+    final mo = u.month.toString().padLeft(2, '0');
+    final d = u.day.toString().padLeft(2, '0');
+    final h = u.hour.toString().padLeft(2, '0');
+    final mi = u.minute.toString().padLeft(2, '0');
+    final s = u.second.toString().padLeft(2, '0');
+    return '$y-$mo-${d}T$h:$mi:${s}Z';
   }
 }
 
@@ -135,6 +145,14 @@ class Ping {
   /// Public token of the user that sent the request.
   final String key;
 
+  /// Encodes this [Ping] as a JSON map.
+  Map<String, dynamic> toJson() => {
+        'time': time.toIso8601String(),
+        'version': version,
+        'nonce': nonce,
+        'key': key,
+      };
+
   @override
   String toString() =>
       'Ping(time: $time, version: $version, nonce: $nonce, key: $key)';
@@ -160,7 +178,7 @@ class Account {
 
   /// Decodes from JSON.
   factory Account.fromJson(Map<String, dynamic> json) => Account(
-        balance: (json['balance'] as num).toDouble(),
+        balance: LenientNum.asDouble(json['balance']),
         currency: json['currency'] as String,
         key: json['key'] as String,
         agentId: json['agentId'] as String,
@@ -170,8 +188,8 @@ class Account {
         companyName: json['companyName'] as String?,
         companyAddress: json['companyAddress'] as String?,
         companyPhonenumber: json['companyPhonenumber'] as String?,
-        limitMax: (json['limitMax'] as num).toDouble(),
-        limitRemaining: (json['limitRemaining'] as num).toDouble(),
+        limitMax: LenientNum.asDouble(json['limitMax']),
+        limitRemaining: LenientNum.asDouble(json['limitRemaining']),
       );
 
   /// Remaining balance.
@@ -209,6 +227,22 @@ class Account {
 
   /// Collection limit remaining for the day.
   final double limitRemaining;
+
+  /// Encodes this [Account] as a JSON map.
+  Map<String, dynamic> toJson() => {
+        'agentAddress': agentAddress,
+        'agentId': agentId,
+        'agentName': agentName,
+        'agentPhonenumber': agentPhonenumber,
+        'balance': balance,
+        'companyAddress': companyAddress,
+        'companyName': companyName,
+        'companyPhonenumber': companyPhonenumber,
+        'currency': currency,
+        'key': key,
+        'limitMax': limitMax,
+        'limitRemaining': limitRemaining,
+      };
 }
 
 /// Current state of a previously-issued payment collection.
@@ -249,8 +283,8 @@ class PaymentStatus {
         veriCode: json['veriCode'] as String?,
         clearingDate: LenientDate.parseOrNull(json['clearingDate'] as String?),
         trid: json['trid'] as String?,
-        priceLocalCur: (json['priceLocalCur'] as num?)?.toDouble(),
-        priceSystemCur: (json['priceSystemCur'] as num?)?.toDouble(),
+        priceLocalCur: LenientNum.asDoubleOrNull(json['priceLocalCur']),
+        priceSystemCur: LenientNum.asDoubleOrNull(json['priceSystemCur']),
         localCur: json['localCur'] as String?,
         systemCur: json['systemCur'] as String?,
         pin: json['pin'] as String?,
@@ -261,7 +295,7 @@ class PaymentStatus {
         )!,
         payItemId: json['payItemId'] as String?,
         payItemDescr: json['payItemDescr'] as String?,
-        errorCode: (json['errorCode'] as num?)?.toInt() ?? 0,
+        errorCode: LenientNum.asIntOrNull(json['errorCode']) ?? 0,
         tag: json['tag'] as String?,
         commission: json['commission'] is Map<String, dynamic>
             ? Commission.fromJson(json['commission'] as Map<String, dynamic>)
@@ -324,4 +358,27 @@ class PaymentStatus {
 
   /// Commission earned, if the feature is enabled for the service.
   final Commission? commission;
+
+  /// Encodes this [PaymentStatus] as a JSON map.
+  Map<String, dynamic> toJson() => {
+        'clearingDate': clearingDate?.toIso8601String(),
+        'commission': commission?.toJson(),
+        'errorCode': errorCode,
+        'localCur': localCur,
+        'merchant': merchant,
+        'payItemDescr': payItemDescr,
+        'payItemId': payItemId,
+        'pin': pin,
+        'priceLocalCur': priceLocalCur,
+        'priceSystemCur': priceSystemCur,
+        'ptn': ptn,
+        'receiptNumber': receiptNumber,
+        'serviceId': serviceId,
+        'status': status.wireName,
+        'systemCur': systemCur,
+        'tag': tag,
+        'timestamp': timestamp?.toIso8601String(),
+        'trid': trid,
+        'veriCode': veriCode,
+      };
 }

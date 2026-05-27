@@ -1,3 +1,5 @@
+import '../http/lenient_num.dart';
+
 /// Commission earned on a transaction. Present on `PaymentStatus.commission`
 /// only when the commission feature is enabled for the merchant/service.
 class Commission {
@@ -6,7 +8,7 @@ class Commission {
 
   /// Decodes from JSON.
   factory Commission.fromJson(Map<String, dynamic> json) => Commission(
-        earnings: (json['earnings'] as num?)?.toDouble(),
+        earnings: LenientNum.asDoubleOrNull(json['earnings']),
         currency: json['currency'] as String?,
       );
 

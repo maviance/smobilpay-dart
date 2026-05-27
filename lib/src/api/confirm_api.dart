@@ -1,5 +1,6 @@
 import '../exception.dart';
 import '../http/lenient_date.dart';
+import '../http/lenient_num.dart';
 import '../http/transport.dart';
 import '../model/enums.dart';
 
@@ -167,11 +168,11 @@ class CollectionResponse {
           fallback: PaymentStatusType.unknown,
         )!,
         timestamp: LenientDate.parseOrNull(json['timestamp'] as String?),
-        agentBalance: (json['agentBalance'] as num?)?.toDouble(),
+        agentBalance: LenientNum.asDoubleOrNull(json['agentBalance']),
         receiptNumber: json['receiptNumber'] as String?,
         veriCode: json['veriCode'] as String?,
-        priceLocalCur: (json['priceLocalCur'] as num?)?.toDouble(),
-        priceSystemCur: (json['priceSystemCur'] as num?)?.toDouble(),
+        priceLocalCur: LenientNum.asDoubleOrNull(json['priceLocalCur']),
+        priceSystemCur: LenientNum.asDoubleOrNull(json['priceSystemCur']),
         localCur: json['localCur'] as String?,
         systemCur: json['systemCur'] as String?,
         trid: json['trid'] as String?,
@@ -225,6 +226,25 @@ class CollectionResponse {
 
   /// Free-form label echoed back from the request.
   final String? tag;
+
+  /// Encodes this [CollectionResponse] as a JSON map.
+  Map<String, dynamic> toJson() => {
+        'agentBalance': agentBalance,
+        'localCur': localCur,
+        'payItemDescr': payItemDescr,
+        'payItemId': payItemId,
+        'pin': pin,
+        'priceLocalCur': priceLocalCur,
+        'priceSystemCur': priceSystemCur,
+        'ptn': ptn,
+        'receiptNumber': receiptNumber,
+        'status': status.wireName,
+        'systemCur': systemCur,
+        'tag': tag,
+        'timestamp': timestamp?.toIso8601String(),
+        'trid': trid,
+        'veriCode': veriCode,
+      };
 
   @override
   String toString() => 'CollectionResponse(ptn: $ptn, status: $status, '

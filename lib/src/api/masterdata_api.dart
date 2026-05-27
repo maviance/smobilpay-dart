@@ -1,3 +1,4 @@
+import '../http/lenient_num.dart';
 import '../http/query_params.dart';
 import '../http/transport.dart';
 import '../model/enums.dart';
@@ -174,6 +175,17 @@ class Merchant {
         logoHash,
       );
 
+  /// Encodes this [Merchant] as a JSON map.
+  Map<String, dynamic> toJson() => {
+        'country': country,
+        'description': description,
+        'logo': logo,
+        'logoHash': logoHash,
+        'merchant': merchant,
+        'name': name,
+        'status': status.wireName,
+      };
+
   @override
   String toString() =>
       'Merchant(merchant: $merchant, name: $name, status: $status)';
@@ -212,7 +224,7 @@ class Service {
   ///
   /// The wire key is `serviceid` (lowercase i, per the partner spec).
   factory Service.fromJson(Map<String, dynamic> json) => Service(
-        serviceId: (json['serviceid'] as num).toInt(),
+        serviceId: LenientNum.asInt(json['serviceid']),
         merchant: json['merchant'] as String,
         title: json['title'] as String,
         description: json['description'] as String?,
@@ -244,7 +256,7 @@ class Service {
             .map((e) => I18nText.fromJson(e as Map<String, dynamic>))
             .toList(),
         validationMask: json['validationMask'] as String?,
-        denomination: (json['denomination'] as num?)?.toInt(),
+        denomination: LenientNum.asIntOrNull(json['denomination']),
       );
 
   /// Unique service identifier.
@@ -303,6 +315,31 @@ class Service {
 
   /// Fixed denomination, if applicable.
   final int? denomination;
+
+  /// Encodes this [Service] as a JSON map.
+  Map<String, dynamic> toJson() => {
+        'category': category,
+        'country': country,
+        'denomination': denomination,
+        'description': description,
+        'hint': hint.map((e) => e.toJson()).toList(),
+        'isReqCustomerAddress': isReqCustomerAddress,
+        'isReqCustomerName': isReqCustomerName,
+        'isReqCustomerNumber': isReqCustomerNumber,
+        'isReqServiceNumber': isReqServiceNumber,
+        'isVerifiable': isVerifiable,
+        'labelCustomerNumber':
+            labelCustomerNumber.map((e) => e.toJson()).toList(),
+        'labelServiceNumber':
+            labelServiceNumber.map((e) => e.toJson()).toList(),
+        'localCur': localCur,
+        'merchant': merchant,
+        'serviceid': serviceId,
+        'status': status.wireName,
+        'title': title,
+        'type': type.wireName,
+        'validationMask': validationMask,
+      };
 }
 
 /// A cash-out item — collection from a customer's mobile wallet.
@@ -327,7 +364,7 @@ class Cashout implements PaymentItem {
 
   /// Decodes from JSON.
   factory Cashout.fromJson(Map<String, dynamic> json) => Cashout(
-        serviceId: (json['serviceid'] as num).toInt(),
+        serviceId: LenientNum.asInt(json['serviceid']),
         merchant: json['merchant'] as String,
         payItemId: json['payItemId'] as String,
         payItemDescr: json['payItemDescr'] as String?,
@@ -338,10 +375,10 @@ class Cashout implements PaymentItem {
         )!,
         localCur: json['localCur'] as String?,
         name: json['name'] as String?,
-        amountLocalCur: (json['amountLocalCur'] as num?)?.toDouble(),
+        amountLocalCur: LenientNum.asDoubleOrNull(json['amountLocalCur']),
         description: json['description'] as String?,
         optStrg: json['optStrg'] as String?,
-        optNmb: (json['optNmb'] as num?)?.toDouble(),
+        optNmb: LenientNum.asDoubleOrNull(json['optNmb']),
       );
 
   @override
@@ -408,6 +445,21 @@ class Cashout implements PaymentItem {
         optNmb,
       );
 
+  /// Encodes this [Cashout] as a JSON map.
+  Map<String, dynamic> toJson() => {
+        'amountLocalCur': amountLocalCur,
+        'amountType': amountType.wireName,
+        'description': description,
+        'localCur': localCur,
+        'merchant': merchant,
+        'name': name,
+        'optNmb': optNmb,
+        'optStrg': optStrg,
+        'payItemDescr': payItemDescr,
+        'payItemId': payItemId,
+        'serviceid': serviceId,
+      };
+
   @override
   String toString() => 'Cashout(serviceId: $serviceId, payItemId: $payItemId, '
       'amountType: $amountType)';
@@ -435,7 +487,7 @@ class Cashin implements PaymentItem {
 
   /// Decodes from JSON.
   factory Cashin.fromJson(Map<String, dynamic> json) => Cashin(
-        serviceId: (json['serviceid'] as num).toInt(),
+        serviceId: LenientNum.asInt(json['serviceid']),
         merchant: json['merchant'] as String,
         payItemId: json['payItemId'] as String,
         payItemDescr: json['payItemDescr'] as String?,
@@ -446,10 +498,10 @@ class Cashin implements PaymentItem {
         )!,
         localCur: json['localCur'] as String?,
         name: json['name'] as String?,
-        amountLocalCur: (json['amountLocalCur'] as num?)?.toDouble(),
+        amountLocalCur: LenientNum.asDoubleOrNull(json['amountLocalCur']),
         description: json['description'] as String?,
         optStrg: json['optStrg'] as String?,
-        optNmb: (json['optNmb'] as num?)?.toDouble(),
+        optNmb: LenientNum.asDoubleOrNull(json['optNmb']),
       );
 
   @override
@@ -516,6 +568,21 @@ class Cashin implements PaymentItem {
         optNmb,
       );
 
+  /// Encodes this [Cashin] as a JSON map.
+  Map<String, dynamic> toJson() => {
+        'amountLocalCur': amountLocalCur,
+        'amountType': amountType.wireName,
+        'description': description,
+        'localCur': localCur,
+        'merchant': merchant,
+        'name': name,
+        'optNmb': optNmb,
+        'optStrg': optStrg,
+        'payItemDescr': payItemDescr,
+        'payItemId': payItemId,
+        'serviceid': serviceId,
+      };
+
   @override
   String toString() => 'Cashin(serviceId: $serviceId, payItemId: $payItemId, '
       'amountType: $amountType)';
@@ -540,7 +607,7 @@ class Topup implements PaymentItem {
 
   /// Decodes from JSON.
   factory Topup.fromJson(Map<String, dynamic> json) => Topup(
-        serviceId: (json['serviceid'] as num).toInt(),
+        serviceId: LenientNum.asInt(json['serviceid']),
         merchant: json['merchant'] as String,
         payItemId: json['payItemId'] as String,
         payItemDescr: json['payItemDescr'] as String?,
@@ -551,10 +618,10 @@ class Topup implements PaymentItem {
         )!,
         localCur: json['localCur'] as String?,
         name: json['name'] as String?,
-        amountLocalCur: (json['amountLocalCur'] as num?)?.toDouble(),
+        amountLocalCur: LenientNum.asDoubleOrNull(json['amountLocalCur']),
         description: json['description'] as String?,
         optStrg: json['optStrg'] as String?,
-        optNmb: (json['optNmb'] as num?)?.toDouble(),
+        optNmb: LenientNum.asDoubleOrNull(json['optNmb']),
       );
 
   @override
@@ -621,6 +688,21 @@ class Topup implements PaymentItem {
         optNmb,
       );
 
+  /// Encodes this [Topup] as a JSON map.
+  Map<String, dynamic> toJson() => {
+        'amountLocalCur': amountLocalCur,
+        'amountType': amountType.wireName,
+        'description': description,
+        'localCur': localCur,
+        'merchant': merchant,
+        'name': name,
+        'optNmb': optNmb,
+        'optStrg': optStrg,
+        'payItemDescr': payItemDescr,
+        'payItemId': payItemId,
+        'serviceid': serviceId,
+      };
+
   @override
   String toString() => 'Topup(serviceId: $serviceId, payItemId: $payItemId, '
       'amountType: $amountType)';
@@ -649,7 +731,7 @@ class Product implements PaymentItem {
 
   /// Decodes from JSON.
   factory Product.fromJson(Map<String, dynamic> json) => Product(
-        serviceId: (json['serviceid'] as num).toInt(),
+        serviceId: LenientNum.asInt(json['serviceid']),
         merchant: json['merchant'] as String,
         payItemId: json['payItemId'] as String,
         payItemDescr: json['payItemDescr'] as String?,
@@ -660,10 +742,10 @@ class Product implements PaymentItem {
         )!,
         localCur: json['localCur'] as String?,
         name: json['name'] as String?,
-        amountLocalCur: (json['amountLocalCur'] as num?)?.toDouble(),
+        amountLocalCur: LenientNum.asDoubleOrNull(json['amountLocalCur']),
         description: json['description'] as String?,
         optStrg: json['optStrg'] as String?,
-        optNmb: (json['optNmb'] as num?)?.toDouble(),
+        optNmb: LenientNum.asDoubleOrNull(json['optNmb']),
       );
 
   @override
@@ -729,6 +811,21 @@ class Product implements PaymentItem {
         optStrg,
         optNmb,
       );
+
+  /// Encodes this [Product] as a JSON map.
+  Map<String, dynamic> toJson() => {
+        'amountLocalCur': amountLocalCur,
+        'amountType': amountType.wireName,
+        'description': description,
+        'localCur': localCur,
+        'merchant': merchant,
+        'name': name,
+        'optNmb': optNmb,
+        'optStrg': optStrg,
+        'payItemDescr': payItemDescr,
+        'payItemId': payItemId,
+        'serviceid': serviceId,
+      };
 
   @override
   String toString() => 'Product(serviceId: $serviceId, payItemId: $payItemId, '

@@ -1,5 +1,6 @@
 import '../exception.dart';
 import '../http/lenient_date.dart';
+import '../http/lenient_num.dart';
 import '../http/query_params.dart';
 import '../http/transport.dart';
 import '../model/enums.dart';
@@ -111,7 +112,7 @@ class Bill implements PaymentItem {
   ///
   /// The wire key is `serviceid` (lowercase i, per the partner spec).
   factory Bill.fromJson(Map<String, dynamic> json) => Bill(
-        serviceId: (json['serviceid'] as num).toInt(),
+        serviceId: LenientNum.asInt(json['serviceid']),
         merchant: json['merchant'] as String,
         payItemId: json['payItemId'] as String,
         payItemDescr: json['payItemDescr'] as String?,
@@ -122,17 +123,17 @@ class Bill implements PaymentItem {
         )!,
         localCur: json['localCur'] as String?,
         name: json['name'] as String?,
-        amountLocalCur: (json['amountLocalCur'] as num?)?.toDouble(),
+        amountLocalCur: LenientNum.asDoubleOrNull(json['amountLocalCur']),
         description: json['description'] as String?,
         optStrg: json['optStrg'] as String?,
-        optNmb: (json['optNmb'] as num?)?.toDouble(),
+        optNmb: LenientNum.asDoubleOrNull(json['optNmb']),
         billType: enumFromJson(
           BillType.values,
           json['billType'] as String?,
           fallback: BillType.unknown,
         )!,
-        penaltyAmount: (json['penaltyAmount'] as num?)?.toDouble(),
-        payOrder: (json['payOrder'] as num?)?.toInt() ?? 0,
+        penaltyAmount: LenientNum.asDoubleOrNull(json['penaltyAmount']),
+        payOrder: LenientNum.asIntOrNull(json['payOrder']) ?? 0,
         serviceNumber: json['serviceNumber'] as String?,
         billNumber: json['billNumber'] as String?,
         customerNumber: json['customerNumber'] as String?,
@@ -256,6 +257,31 @@ class Bill implements PaymentItem {
         billDueDate,
       ]);
 
+  /// Encodes this [Bill] as a JSON map.
+  Map<String, dynamic> toJson() => {
+        'amountLocalCur': amountLocalCur,
+        'amountType': amountType.wireName,
+        'billDate': billDate?.toIso8601String(),
+        'billDueDate': billDueDate?.toIso8601String(),
+        'billMonth': billMonth,
+        'billNumber': billNumber,
+        'billType': billType.wireName,
+        'billYear': billYear,
+        'customerNumber': customerNumber,
+        'description': description,
+        'localCur': localCur,
+        'merchant': merchant,
+        'name': name,
+        'optNmb': optNmb,
+        'optStrg': optStrg,
+        'payItemDescr': payItemDescr,
+        'payItemId': payItemId,
+        'payOrder': payOrder,
+        'penaltyAmount': penaltyAmount,
+        'serviceid': serviceId,
+        'serviceNumber': serviceNumber,
+      };
+
   @override
   String toString() => 'Bill(serviceId: $serviceId, payItemId: $payItemId, '
       'billType: $billType, payOrder: $payOrder)';
@@ -292,7 +318,7 @@ class Subscription implements PaymentItem {
   ///
   /// The wire key is `serviceid` (lowercase i, per the partner spec).
   factory Subscription.fromJson(Map<String, dynamic> json) => Subscription(
-        serviceId: (json['serviceid'] as num).toInt(),
+        serviceId: LenientNum.asInt(json['serviceid']),
         merchant: json['merchant'] as String,
         payItemId: json['payItemId'] as String,
         payItemDescr: json['payItemDescr'] as String?,
@@ -303,10 +329,10 @@ class Subscription implements PaymentItem {
         )!,
         localCur: json['localCur'] as String?,
         name: json['name'] as String?,
-        amountLocalCur: (json['amountLocalCur'] as num?)?.toDouble(),
+        amountLocalCur: LenientNum.asDoubleOrNull(json['amountLocalCur']),
         description: json['description'] as String?,
         optStrg: json['optStrg'] as String?,
-        optNmb: (json['optNmb'] as num?)?.toDouble(),
+        optNmb: LenientNum.asDoubleOrNull(json['optNmb']),
         serviceNumber: json['serviceNumber'] as String?,
         customerReference: json['customerReference'] as String?,
         customerName: json['customerName'] as String?,
@@ -415,6 +441,28 @@ class Subscription implements PaymentItem {
         endDate,
       ]);
 
+  /// Encodes this [Subscription] as a JSON map.
+  Map<String, dynamic> toJson() => {
+        'amountLocalCur': amountLocalCur,
+        'amountType': amountType.wireName,
+        'customerName': customerName,
+        'customerNumber': customerNumber,
+        'customerReference': customerReference,
+        'description': description,
+        'dueDate': dueDate?.toIso8601String(),
+        'endDate': endDate?.toIso8601String(),
+        'localCur': localCur,
+        'merchant': merchant,
+        'name': name,
+        'optNmb': optNmb,
+        'optStrg': optStrg,
+        'payItemDescr': payItemDescr,
+        'payItemId': payItemId,
+        'serviceid': serviceId,
+        'serviceNumber': serviceNumber,
+        'startDate': startDate?.toIso8601String(),
+      };
+
   @override
   String toString() =>
       'Subscription(serviceId: $serviceId, payItemId: $payItemId, '
@@ -485,9 +533,9 @@ class QuoteResponse {
         quoteId: json['quoteId'] as String,
         expiresAt: LenientDate.parse(json['expiresAt'] as String),
         payItemId: json['payItemId'] as String,
-        amountLocalCur: (json['amountLocalCur'] as num?)?.toDouble(),
-        priceLocalCur: (json['priceLocalCur'] as num?)?.toDouble(),
-        priceSystemCur: (json['priceSystemCur'] as num?)?.toDouble(),
+        amountLocalCur: LenientNum.asDoubleOrNull(json['amountLocalCur']),
+        priceLocalCur: LenientNum.asDoubleOrNull(json['priceLocalCur']),
+        priceSystemCur: LenientNum.asDoubleOrNull(json['priceSystemCur']),
         localCur: json['localCur'] as String?,
         systemCur: json['systemCur'] as String?,
         promotion: json['promotion'] as String?,
@@ -519,6 +567,19 @@ class QuoteResponse {
 
   /// Active promotion code applied to this quote, if any.
   final String? promotion;
+
+  /// Encodes this [QuoteResponse] as a JSON map.
+  Map<String, dynamic> toJson() => {
+        'amountLocalCur': amountLocalCur,
+        'expiresAt': expiresAt.toIso8601String(),
+        'localCur': localCur,
+        'payItemId': payItemId,
+        'priceLocalCur': priceLocalCur,
+        'priceSystemCur': priceSystemCur,
+        'promotion': promotion,
+        'quoteId': quoteId,
+        'systemCur': systemCur,
+      };
 
   @override
   String toString() =>

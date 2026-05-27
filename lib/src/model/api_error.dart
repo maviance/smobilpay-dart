@@ -1,3 +1,5 @@
+import '../http/lenient_num.dart';
+
 /// Standard API error envelope returned by the partner API on non-2xx
 /// responses.
 ///
@@ -15,7 +17,7 @@ class ApiError {
 
   /// Decodes an [ApiError] from a JSON map.
   factory ApiError.fromJson(Map<String, dynamic> json) => ApiError(
-        respCode: (json['respCode'] as num).toInt(),
+        respCode: LenientNum.asInt(json['respCode']),
         devMsg: json['devMsg'] as String?,
         usrMsg: json['usrMsg'] as String?,
         link: json['link'] as String?,
