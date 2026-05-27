@@ -1,0 +1,23 @@
+[
+  {
+    "serviceid": 10039,
+    "merchant": "ENEO",
+    "title": "Postpaid bill payment",
+    "description": "Pay your electricity bill",
+    "category": "BILL",
+    "country": "CMR",
+    "localCur": "XAF",
+    "type": "SEARCHABLE_BILL",
+    "status": "Active",
+    "isReqCustomerName": false,
+    "isReqCustomerAddress": false,
+    "isReqCustomerNumber": false,
+    "isReqServiceNumber": true,
+    "isVerifiable": true,
+    "labelCustomerNumber": [],
+    "labelServiceNumber": [{"language": "en", "localText": "Contract number"}],
+    "hint": [],
+    "validationMask": null,
+    "denomination": null
+  }
+]

@@ -1,0 +1,15 @@
+[
+  {
+    "serviceid": 10101,
+    "merchant": "CMOMRNG",
+    "payItemId": "SPAY-DEV-10101-ORANGE-TOPUP-001",
+    "payItemDescr": "Orange Cameroon Prepaid Top-Up",
+    "amountType": "CUSTOM",
+    "localCur": "XAF",
+    "name": "Orange Airtime",
+    "amountLocalCur": null,
+    "description": "Recharge your Orange prepaid line",
+    "optStrg": null,
+    "optNmb": null
+  }
+]

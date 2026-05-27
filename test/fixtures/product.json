@@ -1,0 +1,15 @@
+[
+  {
+    "serviceid": 30201,
+    "merchant": "CMSCRATCH",
+    "payItemId": "SPAY-DEV-30201-SCRATCH-500-001",
+    "payItemDescr": "500 XAF Scratch Card",
+    "amountType": "FIXED",
+    "localCur": "XAF",
+    "name": "Scratch Card 500",
+    "amountLocalCur": 500.0,
+    "description": "500 XAF denomination scratch card",
+    "optStrg": null,
+    "optNmb": null
+  }
+]

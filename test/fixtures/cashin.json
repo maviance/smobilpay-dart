@@ -1,0 +1,15 @@
+[
+  {
+    "serviceid": 20054,
+    "merchant": "CMMTNMOMO",
+    "payItemId": "SPAY-DEV-20054-MTN-CASHIN-001",
+    "payItemDescr": "MTN Mobile Money Cash-In",
+    "amountType": "CUSTOM",
+    "localCur": "XAF",
+    "name": "MTN MoMo Cash-In",
+    "amountLocalCur": null,
+    "description": "Disburse into MTN MoMo wallet",
+    "optStrg": null,
+    "optNmb": null
+  }
+]

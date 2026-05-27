@@ -1,0 +1,15 @@
+[
+  {
+    "serviceid": 20053,
+    "merchant": "CMMTNMOMO",
+    "payItemId": "SPAY-DEV-20053-MTN-CASHOUT-001",
+    "payItemDescr": "MTN Mobile Money Cash-Out",
+    "amountType": "CUSTOM",
+    "localCur": "XAF",
+    "name": "MTN MoMo Cash-Out",
+    "amountLocalCur": null,
+    "description": "Collect from MTN MoMo wallet",
+    "optStrg": null,
+    "optNmb": null
+  }
+]
