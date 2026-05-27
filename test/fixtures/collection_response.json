@@ -1,0 +1,17 @@
+{
+  "ptn": "PTN-DART-SMOKE-001",
+  "timestamp": "2026-05-27T13:01:23Z",
+  "agentBalance": 49500.0,
+  "receiptNumber": "RCPT-1001",
+  "veriCode": "V-001",
+  "priceLocalCur": 1000.0,
+  "priceSystemCur": 1000.0,
+  "localCur": "XAF",
+  "systemCur": "XAF",
+  "trid": "dart-smoke-12345",
+  "pin": null,
+  "status": "SUCCESS",
+  "payItemId": "SPAY-DEV-50052-CASHIN-001",
+  "payItemDescr": "Orange Money Cash-In",
+  "tag": null
+}
