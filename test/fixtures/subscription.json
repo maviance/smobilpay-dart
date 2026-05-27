@@ -1,0 +1,22 @@
+[
+  {
+    "serviceid": 5000,
+    "merchant": "CMSABC",
+    "payItemId": "SPAY-DEV-5000-SUB-001",
+    "payItemDescr": "SABC monthly subscription",
+    "amountType": "FIXED",
+    "localCur": "XAF",
+    "name": "SABC Subscription",
+    "amountLocalCur": 2500.0,
+    "description": "Monthly TV subscription",
+    "optStrg": null,
+    "optNmb": null,
+    "serviceNumber": "0000000101",
+    "customerReference": null,
+    "customerName": "Test Customer",
+    "customerNumber": null,
+    "startDate": "2026-05-01",
+    "dueDate": "2026-05-31",
+    "endDate": "2026-12-31"
+  }
+]

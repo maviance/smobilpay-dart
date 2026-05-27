@@ -1,0 +1,25 @@
+[
+  {
+    "serviceid": 10039,
+    "merchant": "ENEO",
+    "payItemId": "SPAY-DEV-10039-BILL-001",
+    "payItemDescr": "ENEO postpaid bill",
+    "amountType": "FIXED",
+    "localCur": "XAF",
+    "name": "ENEO Bill #203157530",
+    "amountLocalCur": 12500.0,
+    "description": "Electricity bill for March 2026",
+    "optStrg": null,
+    "optNmb": null,
+    "billType": "REGULAR",
+    "penaltyAmount": null,
+    "payOrder": 0,
+    "serviceNumber": "203157530",
+    "billNumber": "B-2026-03-203157530",
+    "customerNumber": null,
+    "billMonth": "03",
+    "billYear": "2026",
+    "billDate": "2026-03-01",
+    "billDueDate": "2026-03-31"
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "quoteId": "00000000-0000-0000-0000-000000000001",
+  "expiresAt": "2026-05-27T13:05:00Z",
+  "payItemId": "SPAY-DEV-10039-BILL-001",
+  "amountLocalCur": 12500.0,
+  "priceLocalCur": 12500.0,
+  "priceSystemCur": 12500.0,
+  "localCur": "XAF",
+  "systemCur": "XAF",
+  "promotion": null
+}
