@@ -1,0 +1,6 @@
+{
+  "respCode": 41004,
+  "devMsg": "service id does not point to a VOUCHER service",
+  "usrMsg": "This service is not available.",
+  "link": null
+}
