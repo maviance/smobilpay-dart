@@ -22,7 +22,9 @@ class Commission {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is Commission && earnings == other.earnings && currency == other.currency;
+      other is Commission &&
+          earnings == other.earnings &&
+          currency == other.currency;
 
   @override
   int get hashCode => Object.hash(earnings, currency);

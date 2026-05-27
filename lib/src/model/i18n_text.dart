@@ -24,7 +24,9 @@ class I18nText {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is I18nText && language == other.language && localText == other.localText;
+      other is I18nText &&
+          language == other.language &&
+          localText == other.localText;
 
   @override
   int get hashCode => Object.hash(language, localText);
