@@ -59,8 +59,11 @@ surface, and it is removed by design).
   blind retry; we surface the error and let callers decide.
 - Async iterators / streaming. Operations return `Future<T>`, matching the
   REST shape.
-- Calling `/v2/collectstd` from CI or the smoke test (real money movement
-  is never automated). Smoke test stops at quote.
+- Unconditional `/v2/collectstd` calls from CI or the smoke test (real
+  money movement is never on by default). The smoke test stops at quote
+  **unless** a flow block opts in with `collect: true` plus the required
+  customer fields — see §8.6 — in which case it executes a real collect
+  on the configured environment. CI runs without that opt-in.
 - Webhook receiver / callback signature verification helpers.
 - A separate `model/` Dart package. Public DTOs ship in `package:smobilpay`,
   co-located with the API group that returns them.
@@ -529,6 +532,55 @@ Then prints a unified diff. Exit code `0` if logs match, `1` otherwise.
 Useful to assert that the Dart client produces identical behaviour to the
 Java/Go/PHP twins against the same partner environment.
 
+### 8.6 Opt-in real collection
+
+The smoke test stays quote-only by default. To exercise a real
+`POST /v2/collectstd` against an unexpired quote, add the following keys
+to the relevant flow block in `smoke-test.json`:
+
+```json
+"cashin": {
+  "serviceId": 50052,
+  "amount": 1000,
+  "collect": true,
+  "customerPhonenumber": "699999999",
+  "customerEmailaddress": "acceptance@maviance.test",
+  "serviceNumber": "699999999"
+}
+```
+
+Required when `collect: true`:
+
+- `customerPhonenumber` — payer's MSISDN for collection flows; recipient
+  MSISDN for `cashin` (disbursement).
+- `customerEmailaddress` — receipt email per the spec.
+- `serviceNumber` — only when the chosen service has
+  `isReqServiceNumber: true` (e.g. CMORANGEMOMO cash-in).
+
+Optional pass-through fields the harness wires into the
+`CollectionRequest` if present in the config block: `customerName`,
+`customerAddress`, `customerNumber`, `trid` (auto-generated as
+`dart-smoke-<unix-ms>` otherwise), `tag` (≤ 50 chars), `callbackUrl`
+(≤ 255 chars), `cdata`.
+
+Scope for v3.2.0: the opt-in path is wired for **every** collection
+flow (`cashout`, `bill`, `topup`, `voucher`, `product`, `subscription`,
+`cashin`) — matching the Node.js client. After a successful collect the
+harness sleeps 1 s and polls `/v2/verifytx` once to surface the latest
+server-side status (matches Node.js; Java omits the poll).
+
+When `collect: true` is set, the scenario label changes from
+`(discover + quote)` to `(discover + quote + collect)` so the output —
+and the cross-client diff in §8.5 — make the opt-in obvious. The
+`collectAndReport` helper prints `status`, `ptn`, `receiptNumber`,
+`veriCode`, `priceLocalCur`, `priceSystemCur`, `agentBalance`, `trid`,
+`timestamp` from the `CollectionResponse`, plus the polled status from
+the follow-up `verifyTransaction`.
+
+**Warning.** Real collects are irreversible from the client. Acceptance
+balances drift forever; production money is real money. Leave `collect`
+absent or `false` in CI and on shared machines.
+
 ## 9. Testing strategy
 
 ### 9.1 Unit tests
@@ -684,6 +736,8 @@ Java byte-for-byte to keep the four clients interchangeable:
 | HTTP 401 skip in `validateAccount` smoke scenario | Same skip message ("restricted endpoint"). |
 | Exit codes | `0` / `1` / `2` as in Java's `SmokeTest`. |
 | Smoke-test log line shape | Same `RUN ` / `PASS ` / `SKIP ` / `FAIL ` / `Summary:` lines. |
+| Real-collect opt-in | `collect: true` on a flow block triggers `POST /v2/collectstd` + one `verifyTransaction` poll. Required fields (`customerPhonenumber`, `customerEmailaddress`, `serviceNumber`-when-needed) validated up-front. Matches Node.js. |
+| Auto-generated `trid` | `dart-smoke-<unix-ms>` when `collect: true` and no `trid` in config. Mirrors Java's `java-smoke-<unix-ms>` / Node's `nodejs-smoke-<unix-ms>`. |
 
 ## 13. Open questions
 
