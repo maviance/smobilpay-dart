@@ -64,9 +64,16 @@ Future<void> main(List<String> args) async {
     await runner._scenarioAccount(client);
     await runner._scenarioMerchants(client);
     await runner._scenarioServices(client);
-    // Task 22 will append: cashout, bill, topup, voucher, product,
-    // subscription, cashin, verifyServiceNumber, validateAccount,
-    // historyByDateRange.
+    await runner._scenarioCashout(client); // collection
+    await runner._scenarioBill(client);
+    await runner._scenarioTopup(client);
+    await runner._scenarioVoucher(client);
+    await runner._scenarioProduct(client);
+    await runner._scenarioSubscription(client);
+    await runner._scenarioCashin(client); // disbursement
+    await runner._scenarioVerifyServiceNumber(client);
+    await runner._scenarioValidateAccount(client);
+    await runner._scenarioHistoryLast7Days(client);
   } finally {
     client.close();
   }
@@ -199,68 +206,332 @@ class _SmokeConfig {
   final _ValidateCfg? validate;
 }
 
-class _CashoutCfg {
-  _CashoutCfg({required this.serviceId, required this.amount});
+// ---------------------------------------------------------------------------
+// Common interface for flow blocks that can opt into a real collect.
+// ---------------------------------------------------------------------------
+
+/// Common interface across every flow block that can opt into a real collect.
+abstract class _CollectFields {
+  bool? get collect;
+  String? get customerPhonenumber;
+  String? get customerEmailaddress;
+  String? get serviceNumber;
+  String? get customerName;
+  String? get customerAddress;
+  String? get customerNumber;
+  String? get trid;
+  String? get tag;
+  String? get callbackUrl;
+  String? get cdata;
+}
+
+// ---------------------------------------------------------------------------
+// Per-flow config classes
+// ---------------------------------------------------------------------------
+
+class _CashoutCfg implements _CollectFields {
+  _CashoutCfg({
+    required this.serviceId,
+    required this.amount,
+    this.collect,
+    this.customerPhonenumber,
+    this.customerEmailaddress,
+    this.serviceNumber,
+    this.customerName,
+    this.customerAddress,
+    this.customerNumber,
+    this.trid,
+    this.tag,
+    this.callbackUrl,
+    this.cdata,
+  });
   factory _CashoutCfg.fromJson(Map<String, dynamic> j) => _CashoutCfg(
         serviceId: (j['serviceId'] as num).toInt(),
         amount: (j['amount'] as num).toInt(),
+        collect: j['collect'] as bool?,
+        customerPhonenumber: j['customerPhonenumber'] as String?,
+        customerEmailaddress: j['customerEmailaddress'] as String?,
+        serviceNumber: j['serviceNumber'] as String?,
+        customerName: j['customerName'] as String?,
+        customerAddress: j['customerAddress'] as String?,
+        customerNumber: j['customerNumber'] as String?,
+        trid: j['trid'] as String?,
+        tag: j['tag'] as String?,
+        callbackUrl: j['callbackUrl'] as String?,
+        cdata: j['cdata'] as String?,
       );
   final int serviceId;
   final int amount;
+  @override
+  final bool? collect;
+  @override
+  final String? customerPhonenumber;
+  @override
+  final String? customerEmailaddress;
+  @override
+  final String? serviceNumber;
+  @override
+  final String? customerName;
+  @override
+  final String? customerAddress;
+  @override
+  final String? customerNumber;
+  @override
+  final String? trid;
+  @override
+  final String? tag;
+  @override
+  final String? callbackUrl;
+  @override
+  final String? cdata;
 }
 
-class _BillCfg {
-  _BillCfg(
-      {required this.merchant,
-      required this.serviceId,
-      required this.serviceNumber});
+class _BillCfg implements _CollectFields {
+  _BillCfg({
+    required this.merchant,
+    required this.serviceId,
+    required this.serviceNumber,
+    this.collect,
+    this.customerPhonenumber,
+    this.customerEmailaddress,
+    this.customerName,
+    this.customerAddress,
+    this.customerNumber,
+    this.trid,
+    this.tag,
+    this.callbackUrl,
+    this.cdata,
+  });
   factory _BillCfg.fromJson(Map<String, dynamic> j) => _BillCfg(
         merchant: j['merchant'] as String,
         serviceId: (j['serviceId'] as num).toInt(),
         serviceNumber: j['serviceNumber'] as String,
+        collect: j['collect'] as bool?,
+        customerPhonenumber: j['customerPhonenumber'] as String?,
+        customerEmailaddress: j['customerEmailaddress'] as String?,
+        customerName: j['customerName'] as String?,
+        customerAddress: j['customerAddress'] as String?,
+        customerNumber: j['customerNumber'] as String?,
+        trid: j['trid'] as String?,
+        tag: j['tag'] as String?,
+        callbackUrl: j['callbackUrl'] as String?,
+        cdata: j['cdata'] as String?,
       );
   final String merchant;
   final int serviceId;
+  // serviceNumber is both a required lookup field AND an optional collect
+  // pass-through field — it satisfies _CollectFields.serviceNumber directly.
+  @override
   final String serviceNumber;
+  @override
+  final bool? collect;
+  @override
+  final String? customerPhonenumber;
+  @override
+  final String? customerEmailaddress;
+  @override
+  final String? customerName;
+  @override
+  final String? customerAddress;
+  @override
+  final String? customerNumber;
+  @override
+  final String? trid;
+  @override
+  final String? tag;
+  @override
+  final String? callbackUrl;
+  @override
+  final String? cdata;
 }
 
-class _TopupCfg {
-  _TopupCfg({required this.serviceId, required this.amount});
+class _TopupCfg implements _CollectFields {
+  _TopupCfg({
+    required this.serviceId,
+    required this.amount,
+    this.collect,
+    this.customerPhonenumber,
+    this.customerEmailaddress,
+    this.serviceNumber,
+    this.customerName,
+    this.customerAddress,
+    this.customerNumber,
+    this.trid,
+    this.tag,
+    this.callbackUrl,
+    this.cdata,
+  });
   factory _TopupCfg.fromJson(Map<String, dynamic> j) => _TopupCfg(
         serviceId: (j['serviceId'] as num).toInt(),
         amount: (j['amount'] as num).toInt(),
+        collect: j['collect'] as bool?,
+        customerPhonenumber: j['customerPhonenumber'] as String?,
+        customerEmailaddress: j['customerEmailaddress'] as String?,
+        serviceNumber: j['serviceNumber'] as String?,
+        customerName: j['customerName'] as String?,
+        customerAddress: j['customerAddress'] as String?,
+        customerNumber: j['customerNumber'] as String?,
+        trid: j['trid'] as String?,
+        tag: j['tag'] as String?,
+        callbackUrl: j['callbackUrl'] as String?,
+        cdata: j['cdata'] as String?,
       );
   final int serviceId;
   final int amount;
+  @override
+  final bool? collect;
+  @override
+  final String? customerPhonenumber;
+  @override
+  final String? customerEmailaddress;
+  @override
+  final String? serviceNumber;
+  @override
+  final String? customerName;
+  @override
+  final String? customerAddress;
+  @override
+  final String? customerNumber;
+  @override
+  final String? trid;
+  @override
+  final String? tag;
+  @override
+  final String? callbackUrl;
+  @override
+  final String? cdata;
 }
 
-class _VoucherCfg {
-  _VoucherCfg({required this.serviceId, this.amount});
+class _VoucherCfg implements _CollectFields {
+  _VoucherCfg({
+    required this.serviceId,
+    this.amount,
+    this.collect,
+    this.customerPhonenumber,
+    this.customerEmailaddress,
+    this.serviceNumber,
+    this.customerName,
+    this.customerAddress,
+    this.customerNumber,
+    this.trid,
+    this.tag,
+    this.callbackUrl,
+    this.cdata,
+  });
   factory _VoucherCfg.fromJson(Map<String, dynamic> j) => _VoucherCfg(
         serviceId: (j['serviceId'] as num).toInt(),
         amount: j['amount'] != null ? (j['amount'] as num).toInt() : null,
+        collect: j['collect'] as bool?,
+        customerPhonenumber: j['customerPhonenumber'] as String?,
+        customerEmailaddress: j['customerEmailaddress'] as String?,
+        serviceNumber: j['serviceNumber'] as String?,
+        customerName: j['customerName'] as String?,
+        customerAddress: j['customerAddress'] as String?,
+        customerNumber: j['customerNumber'] as String?,
+        trid: j['trid'] as String?,
+        tag: j['tag'] as String?,
+        callbackUrl: j['callbackUrl'] as String?,
+        cdata: j['cdata'] as String?,
       );
   final int serviceId;
   final int? amount;
+  @override
+  final bool? collect;
+  @override
+  final String? customerPhonenumber;
+  @override
+  final String? customerEmailaddress;
+  @override
+  final String? serviceNumber;
+  @override
+  final String? customerName;
+  @override
+  final String? customerAddress;
+  @override
+  final String? customerNumber;
+  @override
+  final String? trid;
+  @override
+  final String? tag;
+  @override
+  final String? callbackUrl;
+  @override
+  final String? cdata;
 }
 
-class _ProductCfg {
-  _ProductCfg({required this.serviceId, this.amount});
+class _ProductCfg implements _CollectFields {
+  _ProductCfg({
+    required this.serviceId,
+    this.amount,
+    this.collect,
+    this.customerPhonenumber,
+    this.customerEmailaddress,
+    this.serviceNumber,
+    this.customerName,
+    this.customerAddress,
+    this.customerNumber,
+    this.trid,
+    this.tag,
+    this.callbackUrl,
+    this.cdata,
+  });
   factory _ProductCfg.fromJson(Map<String, dynamic> j) => _ProductCfg(
         serviceId: (j['serviceId'] as num).toInt(),
         amount: j['amount'] != null ? (j['amount'] as num).toInt() : null,
+        collect: j['collect'] as bool?,
+        customerPhonenumber: j['customerPhonenumber'] as String?,
+        customerEmailaddress: j['customerEmailaddress'] as String?,
+        serviceNumber: j['serviceNumber'] as String?,
+        customerName: j['customerName'] as String?,
+        customerAddress: j['customerAddress'] as String?,
+        customerNumber: j['customerNumber'] as String?,
+        trid: j['trid'] as String?,
+        tag: j['tag'] as String?,
+        callbackUrl: j['callbackUrl'] as String?,
+        cdata: j['cdata'] as String?,
       );
   final int serviceId;
   final int? amount;
+  @override
+  final bool? collect;
+  @override
+  final String? customerPhonenumber;
+  @override
+  final String? customerEmailaddress;
+  @override
+  final String? serviceNumber;
+  @override
+  final String? customerName;
+  @override
+  final String? customerAddress;
+  @override
+  final String? customerNumber;
+  @override
+  final String? trid;
+  @override
+  final String? tag;
+  @override
+  final String? callbackUrl;
+  @override
+  final String? cdata;
 }
 
-class _SubscriptionCfg {
+class _SubscriptionCfg implements _CollectFields {
   _SubscriptionCfg({
     required this.merchant,
     required this.serviceId,
     this.serviceNumber,
     this.customerNumber,
     this.amount,
+    this.collect,
+    this.customerPhonenumber,
+    this.customerEmailaddress,
+    this.customerName,
+    this.customerAddress,
+    this.trid,
+    this.tag,
+    this.callbackUrl,
+    this.cdata,
   });
   factory _SubscriptionCfg.fromJson(Map<String, dynamic> j) => _SubscriptionCfg(
         merchant: j['merchant'] as String,
@@ -268,37 +539,98 @@ class _SubscriptionCfg {
         serviceNumber: j['serviceNumber'] as String?,
         customerNumber: j['customerNumber'] as String?,
         amount: j['amount'] != null ? (j['amount'] as num).toInt() : null,
+        collect: j['collect'] as bool?,
+        customerPhonenumber: j['customerPhonenumber'] as String?,
+        customerEmailaddress: j['customerEmailaddress'] as String?,
+        customerName: j['customerName'] as String?,
+        customerAddress: j['customerAddress'] as String?,
+        trid: j['trid'] as String?,
+        tag: j['tag'] as String?,
+        callbackUrl: j['callbackUrl'] as String?,
+        cdata: j['cdata'] as String?,
       );
   final String merchant;
   final int serviceId;
+  @override
   final String? serviceNumber;
+  @override
   final String? customerNumber;
   final int? amount;
+  @override
+  final bool? collect;
+  @override
+  final String? customerPhonenumber;
+  @override
+  final String? customerEmailaddress;
+  @override
+  final String? customerName;
+  @override
+  final String? customerAddress;
+  @override
+  final String? trid;
+  @override
+  final String? tag;
+  @override
+  final String? callbackUrl;
+  @override
+  final String? cdata;
 }
 
-class _CashinCfg {
+class _CashinCfg implements _CollectFields {
   _CashinCfg({
     required this.serviceId,
     required this.amount,
-    this.collect = false,
+    this.collect,
     this.customerPhonenumber,
     this.customerEmailaddress,
     this.serviceNumber,
+    this.customerName,
+    this.customerAddress,
+    this.customerNumber,
+    this.trid,
+    this.tag,
+    this.callbackUrl,
+    this.cdata,
   });
   factory _CashinCfg.fromJson(Map<String, dynamic> j) => _CashinCfg(
         serviceId: (j['serviceId'] as num).toInt(),
         amount: (j['amount'] as num).toInt(),
-        collect: j['collect'] as bool? ?? false,
+        collect: j['collect'] as bool?,
         customerPhonenumber: j['customerPhonenumber'] as String?,
         customerEmailaddress: j['customerEmailaddress'] as String?,
         serviceNumber: j['serviceNumber'] as String?,
+        customerName: j['customerName'] as String?,
+        customerAddress: j['customerAddress'] as String?,
+        customerNumber: j['customerNumber'] as String?,
+        trid: j['trid'] as String?,
+        tag: j['tag'] as String?,
+        callbackUrl: j['callbackUrl'] as String?,
+        cdata: j['cdata'] as String?,
       );
   final int serviceId;
   final int amount;
-  final bool collect;
+  @override
+  final bool? collect;
+  @override
   final String? customerPhonenumber;
+  @override
   final String? customerEmailaddress;
+  @override
   final String? serviceNumber;
+  @override
+  final String? customerName;
+  @override
+  final String? customerAddress;
+  @override
+  final String? customerNumber;
+  @override
+  final String? trid;
+  @override
+  final String? tag;
+  @override
+  final String? callbackUrl;
+  @override
+  final String? cdata;
 }
 
 class _VerifyCfg {
@@ -333,7 +665,6 @@ class _ValidateCfg {
 class _Runner {
   _Runner(this._cfg);
 
-  // ignore: unused_field
   final _SmokeConfig _cfg;
 
   int passed = 0;
@@ -417,6 +748,276 @@ class _Runner {
     });
   }
 
+  // --- Scenarios (Task 22: remaining 10) -----------------------------------
+
+  Future<void> _scenarioCashout(SmobilpayClient client) async {
+    final cashout = _cfg.cashout;
+    final willCollect = cashout != null && cashout.collect == true;
+    final name = 'Collection — cash-out (discover + quote'
+        '${willCollect ? " + collect)" : ")"}';
+    await _run(name, () async {
+      if (cashout == null) _skip("no 'cashout' block in config");
+      final items =
+          await client.masterdata.cashouts(serviceId: cashout!.serviceId);
+      if (items.isEmpty) {
+        throw StateError('no cashout items for serviceId=${cashout.serviceId}');
+      }
+      final item = items.first;
+      _detail('picked: ${item.payItemId} (${item.name},'
+          ' ${item.amountType}, local=${item.amountLocalCur} ${item.localCur})');
+      final quote = await _quoteOnly(client, item, cashout.amount, _detail);
+      if (willCollect) {
+        await _collectAndReport(client, quote, cashout, _detail);
+      } else {
+        _quoteOnlyTail(_detail);
+      }
+    });
+  }
+
+  Future<void> _scenarioBill(SmobilpayClient client) async {
+    final bill = _cfg.bill;
+    final willCollect = bill != null && bill.collect == true;
+    final name = 'Collection — bill payment (discover + quote'
+        '${willCollect ? " + collect)" : ")"}';
+    await _run(name, () async {
+      if (bill == null) _skip("no 'bill' block in config");
+      final bills = await client.initiate.bills(
+        merchant: bill!.merchant,
+        serviceId: bill.serviceId,
+        serviceNumber: bill.serviceNumber,
+      );
+      if (bills.isEmpty) {
+        throw StateError(
+            'no bills for ${bill.merchant}/${bill.serviceId}/${bill.serviceNumber}');
+      }
+      final b = bills.first;
+      _detail('picked: ${b.payItemId} (${b.billType},'
+          ' amount=${b.amountLocalCur} ${b.localCur},'
+          ' due=${b.billDueDate})');
+      final amount = (b.amountLocalCur ?? 0.0).toInt();
+      final quote = await _quoteOnly(client, b, amount, _detail);
+      if (willCollect) {
+        await _collectAndReport(client, quote, bill, _detail);
+      } else {
+        _quoteOnlyTail(_detail);
+      }
+    });
+  }
+
+  Future<void> _scenarioTopup(SmobilpayClient client) async {
+    final topup = _cfg.topup;
+    final willCollect = topup != null && topup.collect == true;
+    final name = 'Collection — airtime top-up (discover + quote'
+        '${willCollect ? " + collect)" : ")"}';
+    await _run(name, () async {
+      if (topup == null) _skip("no 'topup' block in config");
+      final items = await client.masterdata.topups(serviceId: topup!.serviceId);
+      if (items.isEmpty) {
+        throw StateError('no topup items for serviceId=${topup.serviceId}');
+      }
+      final item = items.first;
+      _detail('picked: ${item.payItemId} (${item.name},'
+          ' ${item.amountType}, local=${item.amountLocalCur} ${item.localCur})');
+      final quote = await _quoteOnly(client, item, topup.amount, _detail);
+      if (willCollect) {
+        await _collectAndReport(client, quote, topup, _detail);
+      } else {
+        _quoteOnlyTail(_detail);
+      }
+    });
+  }
+
+  Future<void> _scenarioVoucher(SmobilpayClient client) async {
+    final voucher = _cfg.voucher;
+    final willCollect = voucher != null && voucher.collect == true;
+    final name = 'Collection — voucher purchase (discover + quote'
+        '${willCollect ? " + collect)" : ")"}';
+    await _run(name, () async {
+      if (voucher == null) _skip("no 'voucher' block in config");
+      // voucher is non-null below: _skip throws _SkipException.
+      final v = voucher!;
+      List<Product> items;
+      try {
+        items = await client.masterdata.vouchers(serviceId: v.serviceId);
+      } on SmobilpayApiException catch (e) {
+        if (e.error?.respCode == 41004) {
+          _skip('/v2/voucher rejects serviceId=${v.serviceId}'
+              ' (respCode 41004) even though the catalog labels it VOUCHER');
+        }
+        rethrow;
+      }
+      if (items.isEmpty) {
+        throw StateError('no vouchers for serviceId=${v.serviceId}');
+      }
+      final item = items.first;
+      _detail('picked: ${item.payItemId} (${item.name},'
+          ' ${item.amountType}, local=${item.amountLocalCur} ${item.localCur})');
+      final amount = _resolveAmount(item, v.amount);
+      final quote = await _quoteOnly(client, item, amount, _detail);
+      if (willCollect) {
+        await _collectAndReport(client, quote, v, _detail);
+      } else {
+        _quoteOnlyTail(_detail);
+      }
+    });
+  }
+
+  Future<void> _scenarioProduct(SmobilpayClient client) async {
+    final product = _cfg.product;
+    final willCollect = product != null && product.collect == true;
+    final name = 'Collection — product purchase (discover + quote'
+        '${willCollect ? " + collect)" : ")"}';
+    await _run(name, () async {
+      if (product == null) _skip("no 'product' block in config");
+      final items =
+          await client.masterdata.products(serviceId: product!.serviceId);
+      if (items.isEmpty) {
+        throw StateError('no products for serviceId=${product.serviceId}');
+      }
+      final item = items.first;
+      _detail('picked: ${item.payItemId} (${item.name},'
+          ' ${item.amountType}, local=${item.amountLocalCur} ${item.localCur})');
+      final amount = _resolveAmount(item, product.amount);
+      final quote = await _quoteOnly(client, item, amount, _detail);
+      if (willCollect) {
+        await _collectAndReport(client, quote, product, _detail);
+      } else {
+        _quoteOnlyTail(_detail);
+      }
+    });
+  }
+
+  Future<void> _scenarioSubscription(SmobilpayClient client) async {
+    final subscription = _cfg.subscription;
+    final willCollect = subscription != null && subscription.collect == true;
+    final name = 'Collection — subscription top-up (discover + quote'
+        '${willCollect ? " + collect)" : ")"}';
+    await _run(name, () async {
+      if (subscription == null) _skip("no 'subscription' block in config");
+      if (subscription!.serviceNumber == null &&
+          subscription.customerNumber == null) {
+        _skip(
+            "subscription block needs either 'serviceNumber' or 'customerNumber'");
+      }
+      final subs = await client.initiate.subscriptions(
+        merchant: subscription.merchant,
+        serviceId: subscription.serviceId,
+        serviceNumber: subscription.serviceNumber,
+        customerNumber: subscription.customerNumber,
+      );
+      if (subs.isEmpty) {
+        throw StateError('no subscriptions for ${subscription.merchant}/'
+            '${subscription.serviceId}'
+            ' (serviceNumber=${subscription.serviceNumber},'
+            ' customerNumber=${subscription.customerNumber})');
+      }
+      final sub = subs.first;
+      _detail('picked: ${sub.payItemId} (${sub.name},'
+          ' customer=${sub.customerName},'
+          ' amount=${sub.amountLocalCur} ${sub.localCur},'
+          ' due=${sub.dueDate})');
+      final amount = _resolveAmount(sub, subscription.amount);
+      final quote = await _quoteOnly(client, sub, amount, _detail);
+      if (willCollect) {
+        await _collectAndReport(client, quote, subscription, _detail);
+      } else {
+        _quoteOnlyTail(_detail);
+      }
+    });
+  }
+
+  Future<void> _scenarioCashin(SmobilpayClient client) async {
+    final cashin = _cfg.cashin;
+    final willCollect = cashin != null && cashin.collect == true;
+    final name = 'Disbursement — cash-in (discover + quote'
+        '${willCollect ? " + collect)" : ")"}';
+    await _run(name, () async {
+      if (cashin == null) _skip("no 'cashin' block in config");
+      final items =
+          await client.masterdata.cashins(serviceId: cashin!.serviceId);
+      if (items.isEmpty) {
+        throw StateError('no cashin items for serviceId=${cashin.serviceId}');
+      }
+      final item = items.first;
+      _detail('picked: ${item.payItemId} (${item.name},'
+          ' ${item.amountType}, local=${item.amountLocalCur} ${item.localCur})');
+      final quote = await _quoteOnly(client, item, cashin.amount, _detail);
+      if (willCollect) {
+        await _collectAndReport(client, quote, cashin, _detail);
+      } else {
+        _quoteOnlyTail(_detail);
+      }
+    });
+  }
+
+  Future<void> _scenarioVerifyServiceNumber(SmobilpayClient client) async {
+    await _run('Account validation — verify serviceNumber', () async {
+      final c = _cfg.verify;
+      if (c == null) _skip("no 'verify' block in config");
+      try {
+        final valid = await client.accountValidation.verifyServiceNumber(
+          merchant: c!.merchant,
+          serviceId: c.serviceId,
+          serviceNumber: c.serviceNumber,
+        );
+        _detail('${c.serviceNumber} for ${c.merchant}/${c.serviceId}'
+            ' -> ${valid ? "valid" : "invalid"}');
+      } on SmobilpayApiException catch (e) {
+        if (e.error?.respCode == 40408) {
+          _skip('service ${c!.merchant}/${c.serviceId}'
+              ' does not support pre-payment verification (respCode 40408)');
+        }
+        rethrow;
+      }
+    });
+  }
+
+  Future<void> _scenarioValidateAccount(SmobilpayClient client) async {
+    await _run('Account validation — validate destination', () async {
+      final c = _cfg.validate;
+      if (c == null) _skip("no 'validate' block in config");
+      try {
+        final account = await client.accountValidation.validateAccount(
+          destination: c!.destination,
+          serviceId: c.serviceId,
+        );
+        _detail('destination: ${account.destination}');
+        _detail('status:      ${account.status}');
+        _detail('name:        ${account.name}');
+      } on SmobilpayApiException catch (e) {
+        if (e.httpStatus == 401) {
+          _skip('GET /v2/validate is a restricted endpoint and is not enabled'
+              ' for this partner (HTTP 401). Compliance review is required —'
+              ' contact your Maviance integration manager.');
+        }
+        rethrow;
+      }
+    });
+  }
+
+  Future<void> _scenarioHistoryLast7Days(SmobilpayClient client) async {
+    await _run('History - last 7 days', () async {
+      final today = DateTime.now();
+      final weekAgo = today.subtract(const Duration(days: 7));
+      final rows = await client.verify.historyByDateRange(
+        from: weekAgo,
+        to: today,
+      );
+      String fmt(DateTime d) => '${d.year.toString().padLeft(4, "0")}-'
+          '${d.month.toString().padLeft(2, "0")}-'
+          '${d.day.toString().padLeft(2, "0")}';
+      _detail('range:        ${fmt(weekAgo)} -> ${fmt(today)}');
+      _detail('transactions: ${rows.length}');
+      final sample = rows.length < 30 ? rows.length : 30;
+      for (var i = 0; i < sample; i++) {
+        final s = rows[i];
+        _detail('  - ${s.ptn} : ${s.status},'
+            ' ${s.priceLocalCur} ${s.localCur},'
+            ' trid=${s.trid}');
+      }
+    });
+  }
+
   // --- Harness mechanics ---------------------------------------------------
 
   Future<void> _run(String name, Future<void> Function() scenario) async {
@@ -484,11 +1085,117 @@ class _Runner {
 }
 
 // ---------------------------------------------------------------------------
+// Shared scenario helpers
+// ---------------------------------------------------------------------------
+
+/// Issues a quote and prints the standard quote fields.
+Future<QuoteResponse> _quoteOnly(
+  SmobilpayClient client,
+  PaymentItem item,
+  int amount,
+  void Function(String) detail,
+) async {
+  final quote = await client.initiate.quote(
+    QuoteRequest(amount: amount, payItemId: item.payItemId),
+  );
+  detail('quoteId:        ${quote.quoteId}');
+  detail('expiresAt:      ${quote.expiresAt}');
+  detail('price (local):  ${quote.priceLocalCur} ${quote.localCur}');
+  detail('price (system): ${quote.priceSystemCur} ${quote.systemCur}');
+  detail('promotion:      ${quote.promotion}');
+  return quote;
+}
+
+/// Prints the quote-only tail line (no collect opted in).
+void _quoteOnlyTail(void Function(String) detail) {
+  detail(
+      '(intentionally NOT calling /v2/collectstd — set "collect": true on this block to enable)');
+}
+
+/// Chooses the quote amount for items that may or may not carry a catalog
+/// price. FIXED-amount items can use the catalog; CUSTOM-amount items need
+/// an explicit override on the config block.
+int _resolveAmount(PaymentItem item, int? configAmount) {
+  if (configAmount != null && configAmount > 0) return configAmount;
+  final local = item.amountLocalCur;
+  if (local != null && local >= 1.0) return local.toInt();
+  throw StateError('item ${item.payItemId} has no fixed catalog amount '
+      '(got $local). Set "amount" in this block of smoke-test.json.');
+}
+
+/// Real collect, gated by `c.collect == true`.
+///
+/// Called from every collection/disbursement scenario when the flow block
+/// opts in with `"collect": true`. Validates required fields, builds a
+/// CollectionRequest with all populated pass-through fields, calls
+/// /v2/collectstd, prints the response, sleeps 1s, and polls
+/// /v2/verifytx once to surface the latest server-side status.
+Future<void> _collectAndReport(
+  SmobilpayClient client,
+  QuoteResponse quote,
+  _CollectFields c,
+  void Function(String) detail,
+) async {
+  if (c.customerPhonenumber == null || c.customerPhonenumber!.isEmpty) {
+    throw const _SkipException(
+        "'collect' is true but 'customerPhonenumber' is missing");
+  }
+  if (c.customerEmailaddress == null || c.customerEmailaddress!.isEmpty) {
+    throw const _SkipException(
+        "'collect' is true but 'customerEmailaddress' is missing");
+  }
+  // Note: serviceNumber is optional in the helper — the server enforces
+  // it per service via isReqServiceNumber. If serviceNumber is missing
+  // when required, the API returns 4xx and the FAIL handler surfaces it.
+
+  final trid = c.trid ?? 'dart-smoke-${DateTime.now().millisecondsSinceEpoch}';
+  final request = CollectionRequest(
+    quoteId: quote.quoteId,
+    customerPhonenumber: c.customerPhonenumber!,
+    customerEmailaddress: c.customerEmailaddress!,
+    customerName: c.customerName,
+    customerAddress: c.customerAddress,
+    customerNumber: c.customerNumber,
+    serviceNumber: c.serviceNumber,
+    trid: trid,
+    tag: c.tag,
+    callbackUrl: c.callbackUrl,
+    cdata: c.cdata,
+  );
+  detail('POST /v2/collectstd  trid=$trid'
+      '  customerPhonenumber=${c.customerPhonenumber}'
+      '${c.serviceNumber != null ? "  serviceNumber=${c.serviceNumber}" : ""}');
+  final resp = await client.confirm.collect(request);
+  detail('status:         ${resp.status}');
+  detail('ptn:            ${resp.ptn}');
+  detail('receiptNumber:  ${resp.receiptNumber}');
+  detail('veriCode:       ${resp.veriCode}');
+  detail('price (local):  ${resp.priceLocalCur} ${resp.localCur}');
+  detail('price (system): ${resp.priceSystemCur} ${resp.systemCur}');
+  detail('agentBalance:   ${resp.agentBalance}');
+  detail('trid:           ${resp.trid}');
+  detail('timestamp:      ${resp.timestamp}');
+
+  // One-shot verifyTransaction poll, matching the Node.js client.
+  await Future<void>.delayed(const Duration(seconds: 1));
+  try {
+    final statuses = await client.verify.verifyTransaction(ptn: resp.ptn);
+    if (statuses.isNotEmpty) {
+      detail('verifyTransaction.status: ${statuses.first.status}');
+    } else {
+      detail('verifyTransaction returned no rows yet');
+    }
+  } on SmobilpayApiException catch (e) {
+    detail('verifyTransaction failed (HTTP ${e.httpStatus}); ignoring');
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Internal exceptions
 // ---------------------------------------------------------------------------
 
 class _SkipException implements Exception {
-  _SkipException(this.message);
+  const _SkipException(this.message);
   final String message;
 }
 
@@ -505,7 +1212,6 @@ void _require(bool ok, String message) {
   if (!ok) throw StateError(message);
 }
 
-// ignore: unused_element
 void _skip(String reason) => throw _SkipException(reason);
 
 void _line(String s) => stdout.writeln(s);
