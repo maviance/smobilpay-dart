@@ -303,4 +303,373 @@ void main() {
     final url = c.capturedRequests[1].url.toString();
     expect(url, contains('serviceid=30201'));
   });
+
+  // -------------------------------------------------------------------------
+  // Merchant — toString, inequality
+  // -------------------------------------------------------------------------
+
+  test('merchant.toString contains merchant code and name', () {
+    const m = Merchant(
+      merchant: 'ENEO',
+      name: 'Eneo Cameroon',
+      description: null,
+      country: 'CMR',
+      status: MerchantStatus.active,
+      logo: null,
+      logoHash: null,
+    );
+    expect(m.toString(), contains('ENEO'));
+    expect(m.toString(), contains('Eneo Cameroon'));
+  });
+
+  test('merchant inequality when status differs', () {
+    const a = Merchant(
+      merchant: 'X',
+      name: 'X Corp',
+      description: null,
+      country: 'CMR',
+      status: MerchantStatus.active,
+      logo: null,
+      logoHash: null,
+    );
+    const b = Merchant(
+      merchant: 'X',
+      name: 'X Corp',
+      description: null,
+      country: 'CMR',
+      status: MerchantStatus.inactive,
+      logo: null,
+      logoHash: null,
+    );
+    expect(a, isNot(equals(b)));
+  });
+
+  // -------------------------------------------------------------------------
+  // Cashout — equality, hashCode, toString
+  // -------------------------------------------------------------------------
+
+  test('Cashout equality by value', () {
+    const a = Cashout(
+      serviceId: 20053,
+      merchant: 'CMMTNMOMO',
+      payItemId: 'SPAY-DEV-20053-MTN-CASHOUT-001',
+      payItemDescr: null,
+      amountType: AmountType.custom,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: null,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+    );
+    const b = Cashout(
+      serviceId: 20053,
+      merchant: 'CMMTNMOMO',
+      payItemId: 'SPAY-DEV-20053-MTN-CASHOUT-001',
+      payItemDescr: null,
+      amountType: AmountType.custom,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: null,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+    );
+    expect(a, equals(b));
+    expect(a.hashCode, b.hashCode);
+  });
+
+  test('Cashout inequality when merchant differs', () {
+    const a = Cashout(
+      serviceId: 20053,
+      merchant: 'CMMTNMOMO',
+      payItemId: 'SPAY-DEV-20053-MTN-CASHOUT-001',
+      payItemDescr: null,
+      amountType: AmountType.custom,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: null,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+    );
+    const b = Cashout(
+      serviceId: 20053,
+      merchant: 'OTHER',
+      payItemId: 'SPAY-DEV-20053-MTN-CASHOUT-001',
+      payItemDescr: null,
+      amountType: AmountType.custom,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: null,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+    );
+    expect(a, isNot(equals(b)));
+  });
+
+  test('Cashout.toString contains payItemId and amountType', () {
+    const co = Cashout(
+      serviceId: 20053,
+      merchant: 'CMMTNMOMO',
+      payItemId: 'SPAY-DEV-20053-MTN-CASHOUT-001',
+      payItemDescr: null,
+      amountType: AmountType.custom,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: null,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+    );
+    expect(co.toString(), contains('SPAY-DEV-20053-MTN-CASHOUT-001'));
+    expect(co.toString(), contains('AmountType'));
+  });
+
+  // -------------------------------------------------------------------------
+  // Cashin — equality, hashCode, toString
+  // -------------------------------------------------------------------------
+
+  test('Cashin equality by value', () {
+    const a = Cashin(
+      serviceId: 20054,
+      merchant: 'CMMTNMOMO',
+      payItemId: 'SPAY-DEV-20054-MTN-CASHIN-001',
+      payItemDescr: null,
+      amountType: AmountType.custom,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: null,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+    );
+    const b = Cashin(
+      serviceId: 20054,
+      merchant: 'CMMTNMOMO',
+      payItemId: 'SPAY-DEV-20054-MTN-CASHIN-001',
+      payItemDescr: null,
+      amountType: AmountType.custom,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: null,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+    );
+    expect(a, equals(b));
+    expect(a.hashCode, b.hashCode);
+  });
+
+  test('Cashin inequality when serviceId differs', () {
+    const a = Cashin(
+      serviceId: 20054,
+      merchant: 'CMMTNMOMO',
+      payItemId: 'X',
+      payItemDescr: null,
+      amountType: AmountType.custom,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: null,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+    );
+    const b = Cashin(
+      serviceId: 20055,
+      merchant: 'CMMTNMOMO',
+      payItemId: 'X',
+      payItemDescr: null,
+      amountType: AmountType.custom,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: null,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+    );
+    expect(a, isNot(equals(b)));
+  });
+
+  test('Cashin.toString contains payItemId', () {
+    const ci = Cashin(
+      serviceId: 20054,
+      merchant: 'CMMTNMOMO',
+      payItemId: 'SPAY-DEV-20054-MTN-CASHIN-001',
+      payItemDescr: null,
+      amountType: AmountType.custom,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: null,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+    );
+    expect(ci.toString(), contains('SPAY-DEV-20054-MTN-CASHIN-001'));
+  });
+
+  // -------------------------------------------------------------------------
+  // Topup — equality, hashCode, toString
+  // -------------------------------------------------------------------------
+
+  test('Topup equality by value', () {
+    const a = Topup(
+      serviceId: 10101,
+      merchant: 'CMOMRNG',
+      payItemId: 'SPAY-DEV-10101-TOPUP-001',
+      payItemDescr: null,
+      amountType: AmountType.custom,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: null,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+    );
+    const b = Topup(
+      serviceId: 10101,
+      merchant: 'CMOMRNG',
+      payItemId: 'SPAY-DEV-10101-TOPUP-001',
+      payItemDescr: null,
+      amountType: AmountType.custom,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: null,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+    );
+    expect(a, equals(b));
+    expect(a.hashCode, b.hashCode);
+  });
+
+  test('Topup inequality when payItemId differs', () {
+    const a = Topup(
+      serviceId: 10101,
+      merchant: 'CMOMRNG',
+      payItemId: 'SPAY-DEV-10101-TOPUP-001',
+      payItemDescr: null,
+      amountType: AmountType.custom,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: null,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+    );
+    const b = Topup(
+      serviceId: 10101,
+      merchant: 'CMOMRNG',
+      payItemId: 'SPAY-DEV-10101-TOPUP-002',
+      payItemDescr: null,
+      amountType: AmountType.custom,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: null,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+    );
+    expect(a, isNot(equals(b)));
+  });
+
+  test('Topup.toString contains payItemId', () {
+    const t = Topup(
+      serviceId: 10101,
+      merchant: 'CMOMRNG',
+      payItemId: 'SPAY-DEV-10101-TOPUP-001',
+      payItemDescr: null,
+      amountType: AmountType.custom,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: null,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+    );
+    expect(t.toString(), contains('SPAY-DEV-10101-TOPUP-001'));
+  });
+
+  // -------------------------------------------------------------------------
+  // Product — equality, hashCode, toString
+  // -------------------------------------------------------------------------
+
+  test('Product equality by value', () {
+    const a = Product(
+      serviceId: 30201,
+      merchant: 'CMSCRATCH',
+      payItemId: 'SPAY-DEV-30201-PROD-001',
+      payItemDescr: null,
+      amountType: AmountType.fixed,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: 500.0,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+    );
+    const b = Product(
+      serviceId: 30201,
+      merchant: 'CMSCRATCH',
+      payItemId: 'SPAY-DEV-30201-PROD-001',
+      payItemDescr: null,
+      amountType: AmountType.fixed,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: 500.0,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+    );
+    expect(a, equals(b));
+    expect(a.hashCode, b.hashCode);
+  });
+
+  test('Product inequality when amountLocalCur differs', () {
+    const a = Product(
+      serviceId: 30201,
+      merchant: 'CMSCRATCH',
+      payItemId: 'SPAY-DEV-30201-PROD-001',
+      payItemDescr: null,
+      amountType: AmountType.fixed,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: 500.0,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+    );
+    const b = Product(
+      serviceId: 30201,
+      merchant: 'CMSCRATCH',
+      payItemId: 'SPAY-DEV-30201-PROD-001',
+      payItemDescr: null,
+      amountType: AmountType.fixed,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: 1000.0,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+    );
+    expect(a, isNot(equals(b)));
+  });
+
+  test('Product.toString contains payItemId', () {
+    const p = Product(
+      serviceId: 30201,
+      merchant: 'CMSCRATCH',
+      payItemId: 'SPAY-DEV-30201-PROD-001',
+      payItemDescr: null,
+      amountType: AmountType.fixed,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: 500.0,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+    );
+    expect(p.toString(), contains('SPAY-DEV-30201-PROD-001'));
+  });
 }

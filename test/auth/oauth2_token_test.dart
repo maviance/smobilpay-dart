@@ -60,5 +60,27 @@ void main() {
       expect(t1, equals(t2));
       expect(t1.hashCode, t2.hashCode);
     });
+
+    test('toString contains tokenType and expiresAt year', () {
+      final t = OAuth2Token(
+        accessToken: 'jwt.xyz',
+        tokenType: 'Bearer',
+        expiresAt: DateTime.utc(2026, 1, 1, 12),
+      );
+      expect(t.toString(), contains('Bearer'));
+      expect(t.toString(), contains('2026'));
+    });
+
+    test('inequality when accessToken differs', () {
+      final t1 = OAuth2Token(
+          accessToken: 'a',
+          tokenType: 'Bearer',
+          expiresAt: DateTime.utc(2026, 1, 1));
+      final t2 = OAuth2Token(
+          accessToken: 'b',
+          tokenType: 'Bearer',
+          expiresAt: DateTime.utc(2026, 1, 1));
+      expect(t1, isNot(equals(t2)));
+    });
   });
 }

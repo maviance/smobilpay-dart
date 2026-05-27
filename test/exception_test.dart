@@ -67,5 +67,36 @@ void main() {
       expect(e, isA<Exception>());
       expect(e.message, 'baseUrl is required');
     });
+
+    test('SmobilpayException.toString includes runtimeType and message', () {
+      const e = SmobilpayConfigException('bad config');
+      expect(e.toString(), contains('SmobilpayConfigException'));
+      expect(e.toString(), contains('bad config'));
+    });
+
+    test(
+        'SmobilpayApiException.fromEnvelope with empty rawBody uses placeholder',
+        () {
+      final e = SmobilpayApiException.fromEnvelope(503, null, '');
+      expect(e.message, contains('<empty body>'));
+      expect(e.message, contains('503'));
+    });
+
+    test(
+        'SmobilpayApiException.fromEnvelope with null rawBody uses placeholder',
+        () {
+      final e = SmobilpayApiException.fromEnvelope(503, null, null);
+      expect(e.message, contains('<empty body>'));
+    });
+
+    test(
+        'SmobilpayApiException.fromEnvelope with error but null devMsg uses '
+        'placeholder', () {
+      const err =
+          ApiError(respCode: 500, devMsg: null, usrMsg: null, link: null);
+      final e = SmobilpayApiException.fromEnvelope(500, err, null);
+      expect(e.message, contains('<no devMsg>'));
+      expect(e.message, contains('500'));
+    });
   });
 }

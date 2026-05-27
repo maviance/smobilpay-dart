@@ -195,4 +195,286 @@ void main() {
       throwsA(isA<SmobilpayConfigException>()),
     );
   });
+
+  // ---------------------------------------------------------------------------
+  // Bill DTO — equality, hashCode, toString
+  // ---------------------------------------------------------------------------
+
+  test('Bill equality by value and hashCode consistency', () {
+    const a = Bill(
+      serviceId: 10039,
+      merchant: 'ENEO',
+      payItemId: 'SPAY-DEV-10039-BILL-001',
+      payItemDescr: null,
+      amountType: AmountType.fixed,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: 12500.0,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+      billType: BillType.regular,
+      penaltyAmount: null,
+      payOrder: 0,
+      serviceNumber: '203157530',
+      billNumber: null,
+      customerNumber: null,
+      billMonth: '03',
+      billYear: '2026',
+      billDate: null,
+      billDueDate: null,
+    );
+    const b = Bill(
+      serviceId: 10039,
+      merchant: 'ENEO',
+      payItemId: 'SPAY-DEV-10039-BILL-001',
+      payItemDescr: null,
+      amountType: AmountType.fixed,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: 12500.0,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+      billType: BillType.regular,
+      penaltyAmount: null,
+      payOrder: 0,
+      serviceNumber: '203157530',
+      billNumber: null,
+      customerNumber: null,
+      billMonth: '03',
+      billYear: '2026',
+      billDate: null,
+      billDueDate: null,
+    );
+    expect(a, equals(b));
+    expect(a.hashCode, b.hashCode);
+  });
+
+  test('Bill inequality when payItemId differs', () {
+    const a = Bill(
+      serviceId: 10039,
+      merchant: 'ENEO',
+      payItemId: 'SPAY-DEV-10039-BILL-001',
+      payItemDescr: null,
+      amountType: AmountType.fixed,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: 12500.0,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+      billType: BillType.regular,
+      penaltyAmount: null,
+      payOrder: 0,
+      serviceNumber: '203157530',
+      billNumber: null,
+      customerNumber: null,
+      billMonth: '03',
+      billYear: '2026',
+      billDate: null,
+      billDueDate: null,
+    );
+    const b = Bill(
+      serviceId: 10039,
+      merchant: 'ENEO',
+      payItemId: 'SPAY-DEV-10039-BILL-002',
+      payItemDescr: null,
+      amountType: AmountType.fixed,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: 12500.0,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+      billType: BillType.regular,
+      penaltyAmount: null,
+      payOrder: 0,
+      serviceNumber: '203157530',
+      billNumber: null,
+      customerNumber: null,
+      billMonth: '03',
+      billYear: '2026',
+      billDate: null,
+      billDueDate: null,
+    );
+    expect(a, isNot(equals(b)));
+  });
+
+  test('Bill.toString contains payItemId and billType', () {
+    const bill = Bill(
+      serviceId: 10039,
+      merchant: 'ENEO',
+      payItemId: 'SPAY-DEV-10039-BILL-001',
+      payItemDescr: null,
+      amountType: AmountType.fixed,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: null,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+      billType: BillType.regular,
+      penaltyAmount: null,
+      payOrder: 0,
+      serviceNumber: null,
+      billNumber: null,
+      customerNumber: null,
+      billMonth: null,
+      billYear: null,
+      billDate: null,
+      billDueDate: null,
+    );
+    expect(bill.toString(), contains('SPAY-DEV-10039-BILL-001'));
+    expect(bill.toString(), contains('BillType'));
+  });
+
+  // ---------------------------------------------------------------------------
+  // Subscription DTO — equality, hashCode, toString
+  // ---------------------------------------------------------------------------
+
+  test('Subscription equality by value', () {
+    const a = Subscription(
+      serviceId: 5000,
+      merchant: 'CMSABC',
+      payItemId: 'SPAY-DEV-5000-SUB-001',
+      payItemDescr: null,
+      amountType: AmountType.fixed,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: 2500.0,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+      serviceNumber: '0000000101',
+      customerReference: null,
+      customerName: 'Test Customer',
+      customerNumber: null,
+      startDate: null,
+      dueDate: null,
+      endDate: null,
+    );
+    const b = Subscription(
+      serviceId: 5000,
+      merchant: 'CMSABC',
+      payItemId: 'SPAY-DEV-5000-SUB-001',
+      payItemDescr: null,
+      amountType: AmountType.fixed,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: 2500.0,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+      serviceNumber: '0000000101',
+      customerReference: null,
+      customerName: 'Test Customer',
+      customerNumber: null,
+      startDate: null,
+      dueDate: null,
+      endDate: null,
+    );
+    expect(a, equals(b));
+    expect(a.hashCode, b.hashCode);
+  });
+
+  test('Subscription inequality when serviceId differs', () {
+    const a = Subscription(
+      serviceId: 5000,
+      merchant: 'CMSABC',
+      payItemId: 'SPAY-DEV-5000-SUB-001',
+      payItemDescr: null,
+      amountType: AmountType.fixed,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: null,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+      serviceNumber: null,
+      customerReference: null,
+      customerName: null,
+      customerNumber: null,
+      startDate: null,
+      dueDate: null,
+      endDate: null,
+    );
+    const b = Subscription(
+      serviceId: 5001,
+      merchant: 'CMSABC',
+      payItemId: 'SPAY-DEV-5000-SUB-001',
+      payItemDescr: null,
+      amountType: AmountType.fixed,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: null,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+      serviceNumber: null,
+      customerReference: null,
+      customerName: null,
+      customerNumber: null,
+      startDate: null,
+      dueDate: null,
+      endDate: null,
+    );
+    expect(a, isNot(equals(b)));
+  });
+
+  test('Subscription.toString contains payItemId', () {
+    const sub = Subscription(
+      serviceId: 5000,
+      merchant: 'CMSABC',
+      payItemId: 'SPAY-DEV-5000-SUB-001',
+      payItemDescr: null,
+      amountType: AmountType.fixed,
+      localCur: 'XAF',
+      name: null,
+      amountLocalCur: null,
+      description: null,
+      optStrg: null,
+      optNmb: null,
+      serviceNumber: '0000000101',
+      customerReference: null,
+      customerName: null,
+      customerNumber: null,
+      startDate: null,
+      dueDate: null,
+      endDate: null,
+    );
+    expect(sub.toString(), contains('SPAY-DEV-5000-SUB-001'));
+    expect(sub.toString(), contains('0000000101'));
+  });
+
+  // ---------------------------------------------------------------------------
+  // QuoteRequest — toString
+  // ---------------------------------------------------------------------------
+
+  test('QuoteRequest.toString contains amount and payItemId', () {
+    final req =
+        QuoteRequest(amount: 12500, payItemId: 'SPAY-DEV-10039-BILL-001');
+    expect(req.toString(), contains('12500'));
+    expect(req.toString(), contains('SPAY-DEV-10039-BILL-001'));
+  });
+
+  // ---------------------------------------------------------------------------
+  // QuoteResponse — toString
+  // ---------------------------------------------------------------------------
+
+  test('QuoteResponse.toString contains quoteId and payItemId', () {
+    final resp = QuoteResponse(
+      quoteId: 'q-001',
+      expiresAt: DateTime.utc(2026, 5, 27, 14),
+      payItemId: 'SPAY-DEV-10039-BILL-001',
+      amountLocalCur: null,
+      priceLocalCur: null,
+      priceSystemCur: null,
+      localCur: null,
+      systemCur: null,
+      promotion: null,
+    );
+    expect(resp.toString(), contains('q-001'));
+    expect(resp.toString(), contains('SPAY-DEV-10039-BILL-001'));
+  });
 }

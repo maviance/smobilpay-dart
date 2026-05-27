@@ -130,4 +130,18 @@ void main() {
     final url = c.capturedRequests[1].url.toString();
     expect(url, contains('trid=TRID-1'));
   });
+
+  test('Ping.toString contains version and nonce', () async {
+    final c = FakeHttpClient();
+    final api = _newApi(c);
+    c.expect(
+      method: 'GET',
+      url: '/v2/ping',
+      statusCode: 200,
+      body: jsonEncode(loadFixtureMap('ping')),
+    );
+    final pong = await api.ping();
+    expect(pong.toString(), contains('3.0.0'));
+    expect(pong.toString(), contains('abc123'));
+  });
 }

@@ -227,4 +227,37 @@ void main() {
       throwsA(isA<SmobilpayConfigException>()),
     );
   });
+
+  // ---------------------------------------------------------------------------
+  // toString coverage
+  // ---------------------------------------------------------------------------
+
+  test('CollectionRequest.toString contains quoteId and customerPhonenumber',
+      () {
+    final req = CollectionRequest(
+      quoteId: 'qid-001',
+      customerPhonenumber: '+237611111111',
+      customerEmailaddress: 'test@example.com',
+    );
+    expect(req.toString(), contains('qid-001'));
+    expect(req.toString(), contains('+237611111111'));
+  });
+
+  test('CollectionResponse.toString contains ptn and status', () async {
+    final c = FakeHttpClient();
+    final api = _newApi(c);
+    c.expect(
+      method: 'POST',
+      url: '/v2/collectstd',
+      statusCode: 200,
+      body: jsonEncode(loadFixtureMap('collection_response')),
+    );
+    final resp = await api.collect(CollectionRequest(
+      quoteId: '00000000-0000-0000-0000-000000000001',
+      customerPhonenumber: '+237612345678',
+      customerEmailaddress: 'test@example.com',
+    ));
+    expect(resp.toString(), contains('PTN-DART-SMOKE-001'));
+    expect(resp.toString(), contains('PaymentStatusType'));
+  });
 }
