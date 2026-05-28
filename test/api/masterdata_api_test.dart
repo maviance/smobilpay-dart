@@ -115,15 +115,18 @@ void main() {
     expect(s.denomination, isNull);
   });
 
-  test('Service.fromJson tolerates null label/hint arrays', () {
+  test('Service.fromJson tolerates null label/hint arrays + null strings', () {
+    // Live API has been seen to return null for any of merchant/title/
+    // country/localCur on sparse catalog rows, plus null for all three
+    // I18nText list fields. Decoder must not crash.
     final s = Service.fromJson({
       'serviceid': 999,
-      'merchant': 'X',
-      'title': 'T',
+      'merchant': null,
+      'title': null,
       'description': null,
       'category': null,
-      'country': 'CMR',
-      'localCur': 'XAF',
+      'country': null,
+      'localCur': null,
       'type': 'TOPUP',
       'status': 'Active',
       'isReqCustomerName': 0,
@@ -137,6 +140,10 @@ void main() {
       'validationMask': null,
       'denomination': null,
     });
+    expect(s.merchant, isNull);
+    expect(s.title, isNull);
+    expect(s.country, isNull);
+    expect(s.localCur, isNull);
     expect(s.labelCustomerNumber, isEmpty);
     expect(s.labelServiceNumber, isEmpty);
     expect(s.hint, isEmpty);

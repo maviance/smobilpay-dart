@@ -226,12 +226,12 @@ class Service {
   /// The wire key is `serviceid` (lowercase i, per the partner spec).
   factory Service.fromJson(Map<String, dynamic> json) => Service(
         serviceId: LenientNum.asInt(json['serviceid']),
-        merchant: json['merchant'] as String,
-        title: json['title'] as String,
+        merchant: json['merchant'] as String?,
+        title: json['title'] as String?,
         description: json['description'] as String?,
         category: json['category'] as String?,
-        country: json['country'] as String,
-        localCur: json['localCur'] as String,
+        country: json['country'] as String?,
+        localCur: json['localCur'] as String?,
         type: enumFromJson(
           ServiceType.values,
           json['type'] as String?,
@@ -265,11 +265,12 @@ class Service {
   /// Unique service identifier.
   final int serviceId;
 
-  /// Code of the merchant that owns this service.
-  final String merchant;
+  /// Code of the merchant that owns this service. Nullable: the live
+  /// catalog occasionally surfaces sparse rows where this is absent.
+  final String? merchant;
 
   /// Service display title.
-  final String title;
+  final String? title;
 
   /// Service description.
   final String? description;
@@ -278,10 +279,10 @@ class Service {
   final String? category;
 
   /// ISO 3166-1 alpha-3 country code.
-  final String country;
+  final String? country;
 
   /// ISO 4217 local currency code.
-  final String localCur;
+  final String? localCur;
 
   /// Service type, drives which masterdata endpoint to query.
   final ServiceType type;
