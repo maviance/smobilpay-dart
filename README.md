@@ -490,7 +490,8 @@ block:
 ## Onboarding
 
 `baseUrl`, `publicKey`, and `secretKey` are issued by Maviance support during
-partner onboarding. Contact **[support@smobilpay.com](mailto:support@smobilpay.com)**.
+partner onboarding. Contact your Maviance integration manager to receive
+credentials and the environment URL.
 
 ## Development
 
