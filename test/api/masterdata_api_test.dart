@@ -115,6 +115,36 @@ void main() {
     expect(s.denomination, isNull);
   });
 
+  test('Service.fromJson tolerates null label/hint arrays', () {
+    final s = Service.fromJson({
+      'serviceid': 999,
+      'merchant': 'X',
+      'title': 'T',
+      'description': null,
+      'category': null,
+      'country': 'CMR',
+      'localCur': 'XAF',
+      'type': 'TOPUP',
+      'status': 'Active',
+      'isReqCustomerName': 0,
+      'isReqCustomerAddress': 0,
+      'isReqCustomerNumber': 0,
+      'isReqServiceNumber': 1,
+      'isVerifiable': 0,
+      'labelCustomerNumber': null,
+      'labelServiceNumber': null,
+      'hint': null,
+      'validationMask': null,
+      'denomination': null,
+    });
+    expect(s.labelCustomerNumber, isEmpty);
+    expect(s.labelServiceNumber, isEmpty);
+    expect(s.hint, isEmpty);
+    // Also confirms LenientBool handles 0/1 integers.
+    expect(s.isReqServiceNumber, isTrue);
+    expect(s.isVerifiable, isFalse);
+  });
+
   // -------------------------------------------------------------------------
   // Cashout
   // -------------------------------------------------------------------------

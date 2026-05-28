@@ -247,13 +247,15 @@ class Service {
         isReqCustomerNumber: LenientBool.asBool(json['isReqCustomerNumber']),
         isReqServiceNumber: LenientBool.asBool(json['isReqServiceNumber']),
         isVerifiable: LenientBool.asBool(json['isVerifiable']),
-        labelCustomerNumber: (json['labelCustomerNumber'] as List<dynamic>)
-            .map((e) => I18nText.fromJson(e as Map<String, dynamic>))
-            .toList(),
-        labelServiceNumber: (json['labelServiceNumber'] as List<dynamic>)
-            .map((e) => I18nText.fromJson(e as Map<String, dynamic>))
-            .toList(),
-        hint: (json['hint'] as List<dynamic>)
+        labelCustomerNumber:
+            ((json['labelCustomerNumber'] as List<dynamic>?) ?? const [])
+                .map((e) => I18nText.fromJson(e as Map<String, dynamic>))
+                .toList(),
+        labelServiceNumber:
+            ((json['labelServiceNumber'] as List<dynamic>?) ?? const [])
+                .map((e) => I18nText.fromJson(e as Map<String, dynamic>))
+                .toList(),
+        hint: ((json['hint'] as List<dynamic>?) ?? const [])
             .map((e) => I18nText.fromJson(e as Map<String, dynamic>))
             .toList(),
         validationMask: json['validationMask'] as String?,
