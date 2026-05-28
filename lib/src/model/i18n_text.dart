@@ -3,17 +3,18 @@ class I18nText {
   /// Creates an [I18nText].
   const I18nText({required this.language, required this.localText});
 
-  /// Decodes from JSON.
+  /// Decodes from JSON. Both fields are nullable on the wire — the live
+  /// catalog occasionally surfaces partially-populated entries.
   factory I18nText.fromJson(Map<String, dynamic> json) => I18nText(
-        language: json['language'] as String,
-        localText: json['localText'] as String,
+        language: json['language'] as String?,
+        localText: json['localText'] as String?,
       );
 
   /// Target language code (ISO 639-1, e.g. `en`, `fr`).
-  final String language;
+  final String? language;
 
   /// Localized text.
-  final String localText;
+  final String? localText;
 
   /// Encodes to JSON.
   Map<String, dynamic> toJson() => {
