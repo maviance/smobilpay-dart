@@ -25,10 +25,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Sealed `SmobilpayException` hierarchy: `SmobilpayApiException`,
   `SmobilpayAuthException`, `SmobilpayTransportException`,
   `SmobilpayConfigException`.
-- Smoke-test executable: `dart run smobilpay:smoketest`, consuming the same
-  `smoke-test.json` schema as the Java client.
-- `tool/compare_smoketest.dart` — diffs normalized Dart vs Java/Go/PHP
-  smoke-test output.
+- Smoke-test executable: `dart run smobilpay:smoketest`, exercising every
+  partner endpoint against a real environment via a JSON config file.
 
 ## 1.0.0 — 2025-05-09
 

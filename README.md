@@ -487,14 +487,6 @@ block:
 > **Warning**: opting into `"collect": true` moves real money on the partner
 > balance. Use only in an acceptance environment with test credentials.
 
-Cross-client comparison against the Java smoke-test output:
-
-```bash
-dart run smobilpay:smoketest > out/dart.log
-(cd ../java && ./gradlew runSmokeTest --console=plain) > out/java.log
-dart run tool/compare_smoketest.dart --dart out/dart.log --other out/java.log
-```
-
 ## Onboarding
 
 `baseUrl`, `publicKey`, and `secretKey` are issued by Maviance support during

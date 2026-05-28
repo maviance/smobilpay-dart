@@ -30,14 +30,6 @@ $EDITOR smoke-test.json                 # fill baseUrl/publicKey/secretKey
 dart run smobilpay:smoketest
 ```
 
-## Cross-client comparison
-
-```bash
-dart run smobilpay:smoketest > out/dart.log
-(cd ../java && ./gradlew runSmokeTest --console=plain) > out/java.log
-dart run tool/compare_smoketest.dart --dart out/dart.log --other out/java.log
-```
-
 ## Commit style
 
 [Conventional Commits](https://www.conventionalcommits.org/) — `feat:`,
