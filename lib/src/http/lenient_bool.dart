@@ -1,7 +1,9 @@
 /// Lenient boolean decoder that accepts `bool`, `num` (`0`→false, non-zero→true),
 /// and `String` (`"true"`/`"1"` → true, `"false"`/`"0"` → false).
 ///
-/// Mirrors Jackson's default `0`/`1`→bool coercion used by the Java client.
+/// The partner API occasionally emits boolean fields as `0`/`1` integers
+/// or as `"true"`/`"false"` strings; this helper accepts every variant
+/// the wire emits.
 class LenientBool {
   const LenientBool._();
 

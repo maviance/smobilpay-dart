@@ -1,8 +1,7 @@
 /// Lenient numeric decoders that accept both `num` and `String` JSON values.
 ///
 /// The S3P partner API occasionally emits numeric fields as JSON strings
-/// (e.g. `"20053"` instead of `20053`). Java's Jackson coerces these
-/// automatically; we mirror that here.
+/// (e.g. `"20053"` instead of `20053`); this helper accepts both shapes.
 class LenientNum {
   const LenientNum._();
 

@@ -101,8 +101,8 @@ class VerifyApi {
 
   /// Formats a [DateTime] as `yyyy-MM-ddTHH:mm:ssZ` (no fractional seconds).
   ///
-  /// Matches Java's `DateTimeFormatter.ISO_OFFSET_DATE_TIME` output for
-  /// UTC datetimes.
+  /// The `/v2/historystd` endpoint accepts ISO-8601 UTC instants without
+  /// fractional seconds; this helper produces exactly that shape.
   static String _formatHistoryInstant(DateTime dt) {
     final u = dt.toUtc();
     final y = u.year.toString().padLeft(4, '0');

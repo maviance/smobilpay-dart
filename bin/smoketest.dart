@@ -671,7 +671,7 @@ class _Runner {
   int failed = 0;
   int skipped = 0;
 
-  // --- Scenarios (Task 21: first 5) ----------------------------------------
+  // --- Scenarios -----------------------------------------------------------
 
   Future<void> _scenarioPing(SmobilpayClient client) async {
     await _run('Ping (auth probe)', () async {
@@ -729,8 +729,7 @@ class _Runner {
       final services = await client.masterdata.services();
       _detail('services: ${services.length}');
 
-      // Distribution by type — sorted alphabetically by wire name via
-      // SplayTreeMap (equivalent to Java's TreeMap).
+      // SplayTreeMap keeps the type distribution sorted for stable output.
       final byType = SplayTreeMap<String, int>();
       for (final s in services) {
         byType.update(s.type.wireName, (v) => v + 1, ifAbsent: () => 1);
@@ -749,8 +748,6 @@ class _Runner {
       }
     });
   }
-
-  // --- Scenarios (Task 22: remaining 10) -----------------------------------
 
   Future<void> _scenarioCashout(SmobilpayClient client) async {
     final cashout = _cfg.cashout;
@@ -1189,7 +1186,7 @@ Future<void> _collectAndReport(
   final resp = await client.confirm.collect(request);
   __dumpFields(resp.toJson(), detail);
 
-  // One-shot verifyTransaction poll, matching the Node.js client.
+  // One-shot verifyTransaction poll to surface the latest server-side status.
   await Future<void>.delayed(const Duration(seconds: 1));
   try {
     final statuses = await client.verify.verifyTransaction(ptn: resp.ptn);
