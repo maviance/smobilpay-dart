@@ -139,6 +139,28 @@ void main() {
       );
     });
 
+    test('decodes ApiError with string respCode on 4xx', () async {
+      final c = FakeHttpClient();
+      _expectTokenMint(c);
+      c.expect(
+        method: 'GET',
+        url: '/v2/ping',
+        statusCode: 400,
+        body: jsonEncode(loadFixtureMap('api_error_string_respcode')),
+      );
+      final cfg = _cfg(c);
+      final t = HttpTransport(
+          httpClient: c, config: cfg, tokenManager: _tokens(c, cfg));
+      await expectLater(
+        t.getJson('/v2/ping', QueryParams()),
+        throwsA(isA<SmobilpayApiException>()
+            .having((e) => e.httpStatus, 'status', 400)
+            .having((e) => e.error?.respCode, 'respCode', 40408)
+            .having((e) => e.error?.devMsg, 'devMsg',
+                'Verification is not supported for this service')),
+      );
+    });
+
     test('throws SmobilpayTransportException on malformed 2xx JSON', () async {
       final c = FakeHttpClient();
       _expectTokenMint(c);

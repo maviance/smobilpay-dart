@@ -86,7 +86,8 @@ class HttpTransport {
       ApiError? error;
       try {
         final decoded = jsonDecode(resp.body);
-        if (decoded is Map<String, dynamic> && decoded['respCode'] is num) {
+        if (decoded is Map<String, dynamic> &&
+            decoded.containsKey('respCode')) {
           error = ApiError.fromJson(decoded);
         }
       } catch (_) {/* not an envelope */}

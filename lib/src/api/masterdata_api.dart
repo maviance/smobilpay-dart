@@ -1,3 +1,4 @@
+import '../http/lenient_bool.dart';
 import '../http/lenient_num.dart';
 import '../http/query_params.dart';
 import '../http/transport.dart';
@@ -241,11 +242,11 @@ class Service {
           json['status'] as String?,
           fallback: ServiceStatus.unknown,
         )!,
-        isReqCustomerName: json['isReqCustomerName'] as bool,
-        isReqCustomerAddress: json['isReqCustomerAddress'] as bool,
-        isReqCustomerNumber: json['isReqCustomerNumber'] as bool,
-        isReqServiceNumber: json['isReqServiceNumber'] as bool,
-        isVerifiable: json['isVerifiable'] as bool,
+        isReqCustomerName: LenientBool.asBool(json['isReqCustomerName']),
+        isReqCustomerAddress: LenientBool.asBool(json['isReqCustomerAddress']),
+        isReqCustomerNumber: LenientBool.asBool(json['isReqCustomerNumber']),
+        isReqServiceNumber: LenientBool.asBool(json['isReqServiceNumber']),
+        isVerifiable: LenientBool.asBool(json['isVerifiable']),
         labelCustomerNumber: (json['labelCustomerNumber'] as List<dynamic>)
             .map((e) => I18nText.fromJson(e as Map<String, dynamic>))
             .toList(),
