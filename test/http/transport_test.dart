@@ -99,12 +99,14 @@ void main() {
 
   group('errors', () {
     test('decodes ApiError envelope on 4xx', () async {
+      // Use 404 (not 401) so this exercises envelope decoding without
+      // triggering the reactive token-refresh retry; 401 has its own group.
       final c = FakeHttpClient();
       _expectTokenMint(c);
       c.expect(
         method: 'GET',
         url: '/v2/ping',
-        statusCode: 401,
+        statusCode: 404,
         body: jsonEncode(loadFixtureMap('api_error')),
       );
       final cfg = _cfg(c);
@@ -113,7 +115,7 @@ void main() {
       await expectLater(
         t.getJson('/v2/ping', QueryParams()),
         throwsA(isA<SmobilpayApiException>()
-            .having((e) => e.httpStatus, 'status', 401)
+            .having((e) => e.httpStatus, 'status', 404)
             .having((e) => e.error?.respCode, 'respCode', 41004)),
       );
     });
@@ -173,6 +175,100 @@ void main() {
         t.getJson('/v2/ping', QueryParams()),
         throwsA(isA<SmobilpayTransportException>()),
       );
+    });
+  });
+
+  group('auth retry on 401', () {
+    test('refreshes token and retries once on 401, then succeeds', () async {
+      final c = FakeHttpClient();
+      _expectTokenMint(c); // initial mint -> jwt.A
+      c.expect(method: 'GET', url: '/v2/ping', statusCode: 401, body: '');
+      c.expect(
+        method: 'POST',
+        url: '/oauth/token',
+        statusCode: 200,
+        body: '{"access_token":"jwt.B","token_type":"Bearer","expires_in":3600}',
+      );
+      c.expect(
+        method: 'GET',
+        url: '/v2/ping',
+        statusCode: 200,
+        body: jsonEncode(loadFixtureMap('ping')),
+      );
+      final cfg = _cfg(c);
+      final t = HttpTransport(
+          httpClient: c, config: cfg, tokenManager: _tokens(c, cfg));
+
+      final body = await t.getJson('/v2/ping', QueryParams());
+
+      expect((body as Map<String, dynamic>)['version'], '3.0.0');
+      // mint -> ping(401) -> re-mint -> ping(200)
+      expect(c.capturedRequests.length, 4);
+      expect(c.capturedRequests[1].headers['Authorization'], 'Bearer jwt.A');
+      expect(c.capturedRequests[2].method, 'POST');
+      expect(c.capturedRequests[2].url.path, '/oauth/token');
+      expect(c.capturedRequests[3].headers['Authorization'], 'Bearer jwt.B');
+    });
+
+    test('retries at most once — surfaces 401 when the retry also 401s',
+        () async {
+      final c = FakeHttpClient();
+      _expectTokenMint(c);
+      c.expect(method: 'GET', url: '/v2/ping', statusCode: 401, body: '');
+      c.expect(
+        method: 'POST',
+        url: '/oauth/token',
+        statusCode: 200,
+        body: '{"access_token":"jwt.B","token_type":"Bearer","expires_in":3600}',
+      );
+      c.expect(
+        method: 'GET',
+        url: '/v2/ping',
+        statusCode: 401,
+        body: jsonEncode(loadFixtureMap('api_error')),
+      );
+      final cfg = _cfg(c);
+      final t = HttpTransport(
+          httpClient: c, config: cfg, tokenManager: _tokens(c, cfg));
+
+      await expectLater(
+        t.getJson('/v2/ping', QueryParams()),
+        throwsA(isA<SmobilpayApiException>()
+            .having((e) => e.httpStatus, 'status', 401)),
+      );
+      // exactly one retry: mint -> ping -> re-mint -> ping
+      expect(c.capturedRequests.length, 4);
+    });
+
+    test('retries POST on 401 with the refreshed bearer and same body',
+        () async {
+      final c = FakeHttpClient();
+      _expectTokenMint(c);
+      c.expect(method: 'POST', url: '/v2/quotestd', statusCode: 401, body: '');
+      c.expect(
+        method: 'POST',
+        url: '/oauth/token',
+        statusCode: 200,
+        body: '{"access_token":"jwt.B","token_type":"Bearer","expires_in":3600}',
+      );
+      c.expect(
+        method: 'POST',
+        url: '/v2/quotestd',
+        statusCode: 200,
+        body: '{"quoteId":"00000000-0000-0000-0000-000000000000"}',
+      );
+      final cfg = _cfg(c);
+      final t = HttpTransport(
+          httpClient: c, config: cfg, tokenManager: _tokens(c, cfg));
+
+      final body =
+          await t.postJson('/v2/quotestd', {'amount': 1000, 'payItemId': 'X'});
+
+      expect((body as Map<String, dynamic>)['quoteId'],
+          '00000000-0000-0000-0000-000000000000');
+      final retry = c.capturedRequests[3] as http.Request;
+      expect(retry.headers['Authorization'], 'Bearer jwt.B');
+      expect(jsonDecode(retry.body), {'amount': 1000, 'payItemId': 'X'});
     });
   });
 }

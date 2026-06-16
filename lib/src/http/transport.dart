@@ -28,41 +28,67 @@ class HttpTransport {
 
   /// Issues an authenticated `GET` and returns the decoded JSON.
   Future<dynamic> getJson(String path, QueryParams query) async {
-    final bearer = await _tokenManager.accessToken();
     final uri = _resolve(path, query);
     final op = 'GET ${_canonicalPath(path)}';
-    final http.Response resp;
-    try {
-      resp = await _httpClient
-          .get(uri, headers: _headers(bearer))
-          .timeout(_config.requestTimeout);
-    } catch (e) {
-      throw SmobilpayTransportException(op, e, '$op failed: $e');
-    }
+    final resp = await _send(
+      op,
+      (bearer) => _httpClient.get(uri, headers: _headers(bearer)),
+    );
     return _decode(resp, op);
   }
 
   /// Issues an authenticated `POST` of a JSON [body] and returns the decoded JSON.
   Future<dynamic> postJson(String path, Object body) async {
-    final bearer = await _tokenManager.accessToken();
     final uri = _resolve(path, QueryParams());
     final op = 'POST ${_canonicalPath(path)}';
-    final http.Response resp;
+    final resp = await _send(
+      op,
+      (bearer) => _httpClient.post(
+        uri,
+        headers: {
+          ..._headers(bearer),
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(body),
+      ),
+    );
+    return _decode(resp, op);
+  }
+
+  /// Sends an authenticated request built by [issue], retrying once on a
+  /// `401` after forcing a token refresh.
+  ///
+  /// The cached access token is checked against the client's local clock, but
+  /// the server is the real authority on validity: clock drift, server-side
+  /// revocation, key rotation, or an auth-service restart can all make the
+  /// server reject a bearer the client still believes is valid. A `401` is
+  /// returned at the auth layer before any business logic runs, so a single
+  /// refresh-and-retry is safe even for non-idempotent POSTs (no double-charge
+  /// risk). The retry is bounded to one attempt: a still-`401` response — for
+  /// example a genuinely restricted endpoint such as `/v2/validate` — falls
+  /// through to [_decode] and surfaces as a typed [SmobilpayApiException].
+  Future<http.Response> _send(
+    String op,
+    Future<http.Response> Function(String bearer) issue,
+  ) async {
+    final bearer = await _tokenManager.accessToken();
+    final resp = await _dispatch(op, () => issue(bearer));
+    if (resp.statusCode != 401) return resp;
+    final refreshed = await _tokenManager.refresh();
+    return _dispatch(op, () => issue(refreshed));
+  }
+
+  /// Awaits a single HTTP attempt under the configured timeout, mapping any
+  /// transport-level error to a [SmobilpayTransportException].
+  Future<http.Response> _dispatch(
+    String op,
+    Future<http.Response> Function() attempt,
+  ) async {
     try {
-      resp = await _httpClient
-          .post(
-            uri,
-            headers: {
-              ..._headers(bearer),
-              'Content-Type': 'application/json',
-            },
-            body: jsonEncode(body),
-          )
-          .timeout(_config.requestTimeout);
+      return await attempt().timeout(_config.requestTimeout);
     } catch (e) {
       throw SmobilpayTransportException(op, e, '$op failed: $e');
     }
-    return _decode(resp, op);
   }
 
   Map<String, String> _headers(String bearer) => {

@@ -4,6 +4,17 @@ All notable changes to this package are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+- `HttpTransport` now performs reactive OAuth token refresh: a `401` on any
+  secured request forces a single token refresh and retries the request once,
+  instead of surfacing immediately as a `SmobilpayApiException`. This recovers
+  from server-side token expiry, clock drift, and revocation that the proactive
+  (clock-based) refresh cannot detect. The retry is bounded to one attempt, so
+  a genuinely unauthorized request still fails fast (MPAY-30042).
+
 ## 3.2.0 — 2026-05-27
 
 ### Breaking

@@ -35,7 +35,9 @@ class AccountValidationApi {
   /// when available.
   ///
   /// **Restricted endpoint.** Partners without compliance clearance receive
-  /// HTTP 401 as a `SmobilpayApiException`.
+  /// HTTP 401. The transport performs one automatic token refresh and retry on
+  /// a `401`; when the cause is missing clearance the retry returns `401` again
+  /// and the error surfaces as a `SmobilpayApiException`.
   Future<CustomerAccount> validateAccount({
     required String destination,
     required int serviceId,
